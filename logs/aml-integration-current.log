@@ -1,0 +1,525 @@
+[2025-06-17 18:19:25] INFO  - Calling AML scan API...
+[2025-06-17 18:19:26] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:19:26] INFO  - HTTP response code: 200
+[2025-06-17 18:19:26] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:19:26] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:31:31] INFO  - Calling AML scan API...
+[2025-06-17 18:31:31] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:31:33] INFO  - Token expired at: 2025-06-17T11:21:59Z, get a new token
+[2025-06-17 18:31:33] INFO  - Saved new access token, expire at: 2025-06-17T11:41:24Z
+[2025-06-17 18:31:33] INFO  - New token retrieved, expires in 599s
+[2025-06-17 18:31:33] INFO  - HTTP response code: 401
+[2025-06-17 18:31:33] INFO  - Raw JSON Response:
+{
+  "Message" : "Authorization has been denied for this request."
+}
+[2025-06-17 18:31:34] WARN  - Response is not valid JSON or does not match expected fields. Raw body:
+{"Message":"Authorization has been denied for this request."}
+[2025-06-17 18:31:44] INFO  - Calling AML scan API...
+[2025-06-17 18:31:44] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:31:47] INFO  - HTTP response code: 200
+[2025-06-17 18:31:47] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:31:47] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:32:33] INFO  - Calling AML scan API...
+[2025-06-17 18:32:33] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:32:35] INFO  - HTTP response code: 200
+[2025-06-17 18:32:35] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:32:36] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:33:53] INFO  - Calling AML scan API...
+[2025-06-17 18:33:53] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:33:54] INFO  - Not found credential in database
+[2025-06-17 18:33:54] INFO  - Saved new access token, expire at: 2025-06-17T11:43:45Z
+[2025-06-17 18:33:54] INFO  - New token retrieved, expires in 599s
+[2025-06-17 18:33:54] INFO  - HTTP response code: 401
+[2025-06-17 18:33:54] INFO  - Raw JSON Response:
+{
+  "Message" : "Authorization has been denied for this request."
+}
+[2025-06-17 18:33:54] WARN  - Response is not valid JSON or does not match expected fields. Raw body:
+{"Message":"Authorization has been denied for this request."}
+[2025-06-17 18:34:53] INFO  - Calling AML scan API...
+[2025-06-17 18:34:54] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:35:07] INFO  - Not found credential in database
+[2025-06-17 18:35:08] INFO  - Saved new access token, expire at: 2025-06-17T11:44:59Z
+[2025-06-17 18:35:08] INFO  - New token retrieved, expires in 599s
+[2025-06-17 18:35:51] INFO  - HTTP response code: 401
+[2025-06-17 18:35:53] INFO  - Calling AML scan API...
+[2025-06-17 18:35:53] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:35:54] INFO  - HTTP response code: 200
+[2025-06-17 18:35:54] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:35:54] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:37:49] INFO  - Calling AML scan API...
+[2025-06-17 18:37:49] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:38:03] INFO  - Not found credential in database
+[2025-06-17 18:38:16] INFO  - Saved new access token, expire at: 2025-06-17T11:48:06Z
+[2025-06-17 18:38:53] INFO  - New token retrieved, expires in 599s
+[2025-06-17 18:39:18] INFO  - HTTP response code: 401
+[2025-06-17 18:39:18] INFO  - Raw JSON Response:
+{
+  "Message" : "Authorization has been denied for this request."
+}
+[2025-06-17 18:39:18] WARN  - Response is not valid JSON or does not match expected fields. Raw body:
+{"Message":"Authorization has been denied for this request."}
+[2025-06-17 18:39:36] INFO  - Calling AML scan API...
+[2025-06-17 18:39:36] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:39:36] INFO  - HTTP response code: 200
+[2025-06-17 18:39:36] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:39:36] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:39:39] INFO  - Calling AML scan API...
+[2025-06-17 18:39:39] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:39:40] INFO  - HTTP response code: 200
+[2025-06-17 18:39:40] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:39:40] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:39:57] INFO  - Calling AML scan API...
+[2025-06-17 18:39:57] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:39:58] INFO  - Not found credential in database
+[2025-06-17 18:39:58] INFO  - Saved new access token, expire at: 2025-06-17T11:49:49Z
+[2025-06-17 18:39:58] INFO  - New token retrieved, expires in 599s
+[2025-06-17 18:39:58] INFO  - HTTP response code: 401
+[2025-06-17 18:39:58] INFO  - Raw JSON Response:
+{
+  "Message" : "Authorization has been denied for this request."
+}
+[2025-06-17 18:39:58] WARN  - Response is not valid JSON or does not match expected fields. Raw body:
+{"Message":"Authorization has been denied for this request."}
+[2025-06-17 18:48:21] INFO  - Calling AML scan API...
+[2025-06-17 18:48:21] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:48:25] INFO  - HTTP response code: 200
+[2025-06-17 18:48:25] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:48:25] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-17 18:48:28] INFO  - Calling AML scan API...
+[2025-06-17 18:48:28] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-17 18:48:29] INFO  - HTTP response code: 200
+[2025-06-17 18:48:29] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-17 18:48:29] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-18 08:30:57] INFO  - Calling AML scan API...
+[2025-06-18 08:30:57] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-18 08:30:57] INFO  - Not found credential in database
+[2025-06-18 08:30:57] INFO  - New token retrieved, expires in 599s
+[2025-06-18 08:30:58] INFO  - Saved new access token, expire at: 2025-06-18T01:40:49Z
+[2025-06-18 08:30:58] INFO  - HTTP response code: 200
+[2025-06-18 08:30:58] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-18 08:30:58] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-18 08:31:09] INFO  - Calling AML scan API...
+[2025-06-18 08:31:09] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-18 08:31:10] INFO  - HTTP response code: 200
+[2025-06-18 08:31:10] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-18 08:31:10] INFO  - Parsed AML response: F#F#0####F####
+[2025-06-18 08:31:17] INFO  - Calling AML scan API...
+[2025-06-18 08:31:18] INFO  - Request JSON:
+{
+  "OfficerId" : "SBI602640",
+  "Location" : "KH0010001",
+  "Source" : "CBS",
+  "ReferenceNo" : "1248551",
+  "ServiceType" : "1",
+  "RedFlagType" : "Y",
+  "ClientType" : "I",
+  "ClientExist" : "N",
+  "ClientName" : "Heng Soka",
+  "ClientCountry" : "US",
+  "ClientYOB" : "2000",
+  "ClientGender" : "M",
+  "ClientNo" : "",
+  "ClientID" : "12356789",
+  "PassportNo" : "",
+  "PassportNoSec" : "",
+  "PassportExpDate" : "",
+  "PassportExpDateSec" : "",
+  "RiskFactor" : "2#KH|KH|02|0|0|1|0"
+}
+[2025-06-18 08:31:18] INFO  - HTTP response code: 200
+[2025-06-18 08:31:18] INFO  - Raw JSON Response:
+{
+  "MatchStatus" : "F",
+  "WhitelistStatus" : "F",
+  "OnboardNo" : 0,
+  "MatchURL" : "",
+  "SanctionCountryStatus" : "F"
+}
+[2025-06-18 08:31:18] INFO  - Parsed AML response: F#F#0####F####

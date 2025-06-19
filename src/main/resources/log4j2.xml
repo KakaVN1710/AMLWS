@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <RollingFile name="FileLogger"
+                     fileName="../logs/aml-integration-current.log"
+                     filePattern="../logs/aml-integration-%d{ddMMyyyy_HHmmss}-%i.log.gz"
+                     immediateFlush="true"
+                     append="true">
+            <PatternLayout pattern="[%d{yyyy-MM-dd HH:mm:ss}] %-5level - %msg%n" />
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%d{HH:mm:ss}] %-5level - %msg%n" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="FileLogger"/>
+        </Root>
+    </Loggers>
+</Configuration>
