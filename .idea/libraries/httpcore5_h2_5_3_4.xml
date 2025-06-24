@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="httpcore5-h2-5.3.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/httpcore5-h2-5.3.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

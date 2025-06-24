@@ -6,10 +6,8 @@ import com.temenos.logging.facade.Logger;
 import com.temenos.logging.facade.LoggerFactory;
 import main.com.aml.config.ConfigLoader;
 import main.com.aml.database.CredentialDAO;
-import main.com.aml.model.Credential;
-import main.com.aml.model.RealTimeScanRequest;
+import main.com.aml.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import main.com.aml.model.RealTimeScanResponse;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -26,7 +24,6 @@ import java.util.Map;
 
 public class AmlClient {
     private static final ObjectMapper mapper = new ObjectMapper();
-    //private static final Logger logger = AppLogger.logger;
     private static String cachedToken = null;
     private static long tokenExpiryTime = 0;
     private static final Logger logger = LoggerFactory.getLogger("AML");
@@ -145,33 +142,106 @@ public class AmlClient {
         }
     }
 
+    public static String callRealTimeApprovalStatus(String params) {
+        logger.info("Calling RealTimeApprovalStatus (Pull) API...");
+
+        try {
+            RealTimeApprovalStatusRequest request = RealTimeApprovalStatusRequest.Builder.fromDelimitedString(params);
+
+            String jsonRequest = mapper.writeValueAsString(request);
+            logger.info("Request JSON:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request));
+
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpPost post = new HttpPost(ConfigLoader.get("based.url") + ConfigLoader.get("realTimeApprovalStatus.url"));
+                post.setHeader("Content-Type", "application/json");
+                String token = getCachedToken();
+                post.setHeader("Authorization", "Bearer " + token);
+                post.setEntity(new StringEntity(jsonRequest, StandardCharsets.UTF_8));
+
+                HttpClientResponseHandler<String> responseHandler = response -> {
+                    int statusCode = response.getCode();
+                    InputStream contentStream = response.getEntity().getContent();
+                    String responseBody = new String(contentStream.readAllBytes(), StandardCharsets.UTF_8);
+
+                    logger.info("HTTP response code: {}", statusCode);
+                    try {
+                        JsonNode jsonNode = mapper.readTree(responseBody);
+                        String prettyJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
+                        logger.info("Raw JSON Response:\n{}", prettyJson);
+                    } catch (Exception ex) {
+                        logger.warn("Response is not valid JSON:\n{}", responseBody);
+                    }
+                    try {
+                        RealTimeApprovalStatusResponse obj = mapper.readValue(responseBody, RealTimeApprovalStatusResponse.class);
+                        String delimited = String.format("%s@%s", obj.getHandshake(), obj.getApprovalStatus());
+                        logger.info("Parsed Approval Status response: {}", delimited);
+                        return delimited;
+                    } catch (Exception ex) {
+                        logger.warn("Response is not valid JSON or does not match expected fields. Raw body:\n{}", responseBody);
+                        return responseBody;
+                    }
+                };
+
+                return client.execute(post, responseHandler);
+            }
+
+        } catch (Exception e) {
+            logger.error("Approval status error: {}", e.getMessage(), e);
+            return "{\"error\": \"" + e.getMessage() + "\"}";
+        }
+    }
+    public static String callExposure(String params) {
+        logger.info("Calling RealTimeExposure (Pull) API...");
+
+        try {
+            ExposureRequest request = ExposureRequest.Builder.fromDelimitedString(params);
+
+            String jsonRequest = mapper.writeValueAsString(request);
+            logger.info("Request JSON:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request));
+
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpPost post = new HttpPost(ConfigLoader.get("based.url") + ConfigLoader.get("realTimeExposure.url"));
+                post.setHeader("Content-Type", "application/json");
+                String token = getCachedToken();
+                post.setHeader("Authorization", "Bearer " + token);
+                post.setEntity(new StringEntity(jsonRequest, StandardCharsets.UTF_8));
+
+                HttpClientResponseHandler<String> responseHandler = response -> {
+                    int statusCode = response.getCode();
+                    InputStream contentStream = response.getEntity().getContent();
+                    String responseBody = new String(contentStream.readAllBytes(), StandardCharsets.UTF_8);
+
+                    logger.info("HTTP response code: {}", statusCode);
+                    try {
+                        JsonNode jsonNode = mapper.readTree(responseBody);
+                        String prettyJson = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
+                        logger.info("Raw JSON Response:\n{}", prettyJson);
+                    } catch (Exception ex) {
+                        logger.warn("Response is not valid JSON:\n{}", responseBody);
+                    }
+                    try {
+                        ExposureResponse obj = mapper.readValue(responseBody, ExposureResponse.class);
+                        String delimited = obj.toDelimitedString();
+                        logger.info("Parsed Exposure response: {}", delimited);
+                        return delimited;
+                    } catch (Exception ex) {
+                        logger.warn("Response is not valid JSON or does not match expected fields. Raw body:\n{}", responseBody);
+                        return responseBody;
+                    }
+                };
+
+                return client.execute(post, responseHandler);
+            }
+
+        } catch (Exception e) {
+            logger.error("Exposure API error: {}", e.getMessage(), e);
+            return "{\"error\": \"" + e.getMessage() + "\"}";
+        }
+    }
+
+
     public static void main(String[] args) {
-
-/*
-        String tokenResponse = getAccessToken();
-        String[] parts = tokenResponse.split("#");
-        String token = parts[0];
-*/
-
         String realTimeScanResult = callRealTimeScan("SBI602640@KH0010001@CBS@1248551@1@Y@I@N@Heng Soka@US@2000@M@@12356789@@@@@2#KH|KH|02|0|0|1|0");
-//        String realTimeScanResult = callRealTimeScan(
-//                "SBI602640",
-//                "KH0010001",
-//                "CBS",
-//                "1248551",
-//                "1",
-//                "Y",
-//                "I",
-//                "N",
-//                "Heng Soka",
-//                "US",
-//                "2000",
-//                "M",
-//                "",
-//                "12356789",
-//                "", "", "", "", // Optional: PassportNo, PassportNoSec, PassportExpDate, PassportExpDateSec
-//                "2#KH|KH|02|0|0|1|0"
-//        );
 
         System.out.println("✅ AML SCAN RESULT:");
         System.out.println(realTimeScanResult);

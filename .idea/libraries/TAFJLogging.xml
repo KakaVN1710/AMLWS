@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="TAFJLogging">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/libs/TAFJLogging.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
