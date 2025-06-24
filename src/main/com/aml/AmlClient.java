@@ -190,11 +190,11 @@ public class AmlClient {
             return "{\"error\": \"" + e.getMessage() + "\"}";
         }
     }
-    public static String callExposure(String params) {
+    public static String callRealTimeExposure(String params) {
         logger.info("Calling RealTimeExposure (Pull) API...");
 
         try {
-            ExposureRequest request = ExposureRequest.Builder.fromDelimitedString(params);
+            RealTimeExposureRequest request = RealTimeExposureRequest.Builder.fromDelimitedString(params);
 
             String jsonRequest = mapper.writeValueAsString(request);
             logger.info("Request JSON:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request));
@@ -220,7 +220,7 @@ public class AmlClient {
                         logger.warn("Response is not valid JSON:\n{}", responseBody);
                     }
                     try {
-                        ExposureResponse obj = mapper.readValue(responseBody, ExposureResponse.class);
+                        RealTimeExposureResponse obj = mapper.readValue(responseBody, RealTimeExposureResponse.class);
                         String delimited = obj.toDelimitedString();
                         logger.info("Parsed Exposure response: {}", delimited);
                         return delimited;
