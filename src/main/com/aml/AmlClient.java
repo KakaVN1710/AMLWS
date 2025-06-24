@@ -245,5 +245,15 @@ public class AmlClient {
 
         System.out.println("✅ AML SCAN RESULT:");
         System.out.println(realTimeScanResult);
+
+        // Test realTimeExposure
+        String exposureResult = callRealTimeExposure("SBI602640@KH0010001@CBS@1248551");
+        System.out.println("✅ AML EXPOSURE RESULT:");
+        System.out.println(exposureResult);
+
+        // Test realTimeApprovalStatus
+        String approvalResult = callRealTimeApprovalStatus("SBI602640@KH0010001@CBS@1248551");
+        System.out.println("✅ AML APPROVAL STATUS RESULT:");
+        System.out.println(approvalResult);
     }
 }
