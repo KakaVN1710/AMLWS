@@ -3,34 +3,24 @@
     <output-path>$PROJECT_DIR$/out/artifacts/aml_integration_full_jar</output-path>
     <root id="archive" name="aml-integration-full.jar">
       <element id="module-output" name="aml-integration-full" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/junit-jupiter-api-5.9.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/apiguardian-api-1.1.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/commons-logging-1.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpclient5-5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpcore5-5.3.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpcore5-h2-5.3.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-annotations-2.15.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-core-2.15.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-databind-2.15.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/log4j-api-2.20.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/opentest4j-1.2.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpcore5-5.3.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/log4j-core-2.20.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/apiguardian-api-1.1.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-annotations-2.15.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpclient5-5.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/json-20250517.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/junit-jupiter-api-5.9.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/junit-jupiter-engine-5.9.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/sqlite-jdbc-3.50.1.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-api-2.0.9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-simple-2.0.9.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/httpcore5-h2-5.3.4.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/TAFJLogging.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/TemnLogger-6.0.14.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/json-20231013.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/okhttp-4.10.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/okio-jvm-3.4.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/annotations-13.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/log4j-api-2.20.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/slf4j-api-2.0.13.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/TemnMeter-6.0.14.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/log4j-core-2.20.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/TemnLogger-6.0.14.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/TemnTracer-6.0.14.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/kotlin-stdlib-1.8.22.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/log4j-slf4j-impl-2.20.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/kotlin-stdlib-jdk7-1.8.0.jar" path-in-jar="/" />
@@ -56,6 +46,12 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/opentelemetry-sdk-extension-autoconfigure-1.28.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/opentelemetry-sdk-extension-autoconfigure-spi-1.28.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/opentelemetry-instrumentation-api-semconv-1.28.0-alpha.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/log4j-api-2.20.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/log4j-core-2.20.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/opentest4j-1.2.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-api-2.0.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/slf4j-simple-2.0.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/libs/sqlite-jdbc-3.50.1.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

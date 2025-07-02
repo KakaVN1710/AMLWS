@@ -2,13 +2,11 @@ package main.com.aml.database;
 
 import java.sql.*;
 
-import main.com.aml.AppLogger;
 import main.com.aml.config.ConfigLoader;
 import main.com.aml.model.Credential;
-import org.apache.logging.log4j.Logger;
 
 public class CredentialDAO {
-    private static final Logger logger = AppLogger.logger;
+
     private static String DB_URL = "jdbc:sqlite:AMLScan.db";
     public CredentialDAO(){
         String dbPath = ConfigLoader.get("sqlite.db.path");
@@ -39,7 +37,7 @@ public class CredentialDAO {
 
             prepareStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.error( "Failed to save credential: ", e);
+
         }
     }
 
@@ -64,7 +62,7 @@ public class CredentialDAO {
                 );
             }
         } catch (SQLException e) {
-            logger.error( "Failed to load credential: ", e);
+
         }
         return null;
     }
@@ -78,7 +76,7 @@ public class CredentialDAO {
             prepareStatement.setString(1, key);
             prepareStatement.executeUpdate();
         } catch (SQLException e) {
-            logger.error( "Failed to delete credential: ", e);
+
         }
     }
 }

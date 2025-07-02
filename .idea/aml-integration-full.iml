@@ -24,9 +24,8 @@
     <orderEntry type="library" name="slf4j-simple-2.0.9" level="project" />
     <orderEntry type="library" name="httpcore5-h2-5.3.4" level="project" />
     <orderEntry type="library" name="sqlite-jdbc-3.50.1.0" level="project" />
-    <orderEntry type="library" name="TAFJLogging" level="project" />
-    <orderEntry type="library" name="TemnLogger-6.0.14" level="project" />
     <orderEntry type="library" name="json-20250517" level="project" />
     <orderEntry type="library" name="libMonitor" level="project" />
+    <orderEntry type="library" name="TAFJLogging" level="project" />
   </component>
 </module>

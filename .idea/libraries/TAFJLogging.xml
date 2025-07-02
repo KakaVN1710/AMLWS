@@ -2,6 +2,7 @@
   <library name="TAFJLogging">
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/libs/TAFJLogging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/TemnLogger-6.0.14.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
