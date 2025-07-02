@@ -25,7 +25,13 @@ public class Credential {
 
     // Getters and Setters
     public String getKey() { return key; }
-    public void setKey(String key) { this.key = "token"; }
+    public void setKey(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            this.key = "token"; //
+        } else {
+            this.key = key;
+        }
+   }
 
     public String getAccess_token() { return access_token; }
     public void setAccess_token(String access_token) { this.access_token = access_token; }

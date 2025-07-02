@@ -1,4 +1,4 @@
-package main.com.aml;// AmlClient logic here
+package main.com.aml;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,6 +27,7 @@ public class AmlClient {
     private static String cachedToken = null;
     private static long tokenExpiryTime = 0;
     private static final Logger logger = LoggerFactory.getLogger("AML");
+    private static boolean exposureFlag = false;
 
     public static String getAccessToken() throws IOException {
         long currentTime = System.currentTimeMillis();
@@ -40,7 +41,13 @@ public class AmlClient {
         body.put("AuthID", ConfigLoader.get("auth.id"));
         body.put("AuthPW", ConfigLoader.get("auth.pw"));
 
-        String fullUrl = ConfigLoader.get("based.url") + ConfigLoader.get("getToken.url");
+        String fullUrl;
+        if (exposureFlag) {
+            fullUrl = ConfigLoader.get("based.url") + ConfigLoader.get("getTokenExposure.url");
+        } else {
+            fullUrl = ConfigLoader.get("based.url") + ConfigLoader.get("getToken.url");
+        }
+
         HttpPost post = new HttpPost(fullUrl);
         post.setEntity(new StringEntity(mapper.writeValueAsString(body), ContentType.APPLICATION_JSON));
 
@@ -65,6 +72,9 @@ public class AmlClient {
                 long expireAt  = credential.getExpires_in();
                 credential.setExpires_in(System.currentTimeMillis() + (expireAt * 1000L));
                 CredentialDAO dao = new CredentialDAO();
+                if (exposureFlag){
+                    credential.setKey("tokenExposure");
+                }
                 dao.saveCredential(credential);
                 logger.info("Saved new access token, expire at: {}", credential.getExpires());
             }
@@ -76,7 +86,13 @@ public class AmlClient {
     private static String getCachedToken() throws IOException {
         String token;
         CredentialDAO dao = new CredentialDAO();
-        Credential credential = dao.loadCredential("token");
+        Credential credential;
+        if (exposureFlag) {
+            credential = dao.loadCredential("tokenExposure");
+        } else {
+            credential = dao.loadCredential("token");
+        }
+
         if (credential == null) {
             logger.info("Not found credential in database");
             token = getAccessToken();
@@ -141,7 +157,6 @@ public class AmlClient {
             return "{\"error\": \"" + e.getMessage() + "\"}";
         }
     }
-
     public static String callRealTimeApprovalStatus(String params) {
         logger.info("Calling RealTimeApprovalStatus (Pull) API...");
 
@@ -173,7 +188,7 @@ public class AmlClient {
                     }
                     try {
                         RealTimeApprovalStatusResponse obj = mapper.readValue(responseBody, RealTimeApprovalStatusResponse.class);
-                        String delimited = String.format("%s@%s", obj.getHandshake(), obj.getApprovalStatus());
+                        String delimited = obj.toDelimitedString();
                         logger.info("Parsed Approval Status response: {}", delimited);
                         return delimited;
                     } catch (Exception ex) {
@@ -192,7 +207,7 @@ public class AmlClient {
     }
     public static String callRealTimeExposure(String params) {
         logger.info("Calling RealTimeExposure (Pull) API...");
-
+        exposureFlag = true;
         try {
             RealTimeExposureRequest request = RealTimeExposureRequest.Builder.fromDelimitedString(params);
 
@@ -238,11 +253,10 @@ public class AmlClient {
             return "{\"error\": \"" + e.getMessage() + "\"}";
         }
     }
-
-
     public static void main(String[] args) {
-        String realTimeScanResult = callRealTimeScan("SBI602640@KH0010001@CBS@1248551@1@Y@I@N@Heng Soka@US@2000@M@@12356789@@@@@2#KH|KH|02|0|0|1|0");
 
+
+        String realTimeScanResult = callRealTimeScan("SBI602640@KH0010001@CBS@1248551@1@Y@I@N@Heng Soka@US@2000@M@@12356789@@@@@2#KH|KH|02|0|0|1|0");
         System.out.println("✅ AML SCAN RESULT:");
         System.out.println(realTimeScanResult);
 
@@ -251,9 +265,8 @@ public class AmlClient {
         System.out.println("✅ AML EXPOSURE RESULT:");
         System.out.println(exposureResult);
 
-        // Test realTimeApprovalStatus
-        String approvalResult = callRealTimeApprovalStatus("SBI602640@KH0010001@CBS@1248551");
+        String approvalStatusResult = callRealTimeApprovalStatus("A001@PJ@AML@1248551@");
         System.out.println("✅ AML APPROVAL STATUS RESULT:");
-        System.out.println(approvalResult);
+        System.out.println(approvalStatusResult);
     }
 }
