@@ -55,9 +55,18 @@ public class AmlClient {
             JsonNode response = client.execute(post, httpResponse ->
                     mapper.readTree(httpResponse.getEntity().getContent())
             );
-            cachedToken = response.get("access_token").asText();
-            int expiresIn = response.get("expires_in").asInt();
-            tokenExpiryTime = currentTime + (expiresIn * 1000L);
+            int expiresIn;
+            if (exposureFlag) {
+                cachedToken = response.get("AccessToken").asText();
+                expiresIn = response.get("Expires").asInt();
+                tokenExpiryTime = currentTime + (expiresIn * 1000L);
+
+            } else {
+                cachedToken = response.get("access_token").asText();
+                expiresIn = response.get("expires_in").asInt();
+                tokenExpiryTime = currentTime + (expiresIn * 1000L);
+            }
+
 
             logger.info("New token retrieved, expires in {}s", expiresIn);
             handleTokenResponse(response);
@@ -87,6 +96,7 @@ public class AmlClient {
         String token;
         CredentialDAO dao = new CredentialDAO();
         Credential credential;
+        cachedToken = null;
         if (exposureFlag) {
             credential = dao.loadCredential("tokenExposure");
         } else {
@@ -103,7 +113,8 @@ public class AmlClient {
             token = getAccessToken();
         }
         else {
-            token = cachedToken = credential.getAccess_token();
+            token = credential.getAccess_token();
+            cachedToken = token;
             tokenExpiryTime = credential.getExpires_in();
         }
 
@@ -121,6 +132,7 @@ public class AmlClient {
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost post = new HttpPost(ConfigLoader.get("based.url") + ConfigLoader.get("realTimeScan.url"));
                 post.setHeader("Content-Type", "application/json");
+                exposureFlag = false;
                 String token = getCachedToken();
                 post.setHeader("Authorization", "Bearer " + token);
                 post.setEntity(new StringEntity(jsonRequest, StandardCharsets.UTF_8));
@@ -169,6 +181,7 @@ public class AmlClient {
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost post = new HttpPost(ConfigLoader.get("based.url") + ConfigLoader.get("realTimeApprovalStatus.url"));
                 post.setHeader("Content-Type", "application/json");
+                exposureFlag = false;
                 String token = getCachedToken();
                 post.setHeader("Authorization", "Bearer " + token);
                 post.setEntity(new StringEntity(jsonRequest, StandardCharsets.UTF_8));

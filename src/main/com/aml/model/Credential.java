@@ -8,6 +8,16 @@ public class Credential {
     private String userName;
     private String issued;
     private String expires;
+    private String AccessToken;
+    private String Expires;
+
+    public String getAccessToken() {
+        return AccessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        AccessToken = accessToken;
+    }
 
     public Credential() {
         // Required by Jackson
@@ -31,7 +41,7 @@ public class Credential {
         } else {
             this.key = key;
         }
-   }
+    }
 
     public String getAccess_token() { return access_token; }
     public void setAccess_token(String access_token) { this.access_token = access_token; }
