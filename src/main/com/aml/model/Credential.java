@@ -1,23 +1,21 @@
 package main.com.aml.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Credential {
     private String key = "token";
+
+    @JsonAlias({"AccessToken", "access_token"})
     private String access_token;
+
     private String token_type;
     private long expires_in;
     private String userName;
     private String issued;
+
     private String expires;
-    private String AccessToken;
-    private String Expires;
-
-    public String getAccessToken() {
-        return AccessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        AccessToken = accessToken;
-    }
 
     public Credential() {
         // Required by Jackson
@@ -60,4 +58,5 @@ public class Credential {
 
     public String getExpires() { return expires; }
     public void setExpires(String expires) { this.expires = expires; }
+
 }
