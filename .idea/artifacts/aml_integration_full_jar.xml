@@ -11,10 +11,8 @@
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-annotations-2.15.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-core-2.15.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/jackson-databind-2.15.0.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libs/json-20250517.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/junit-jupiter-api-5.9.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libs/junit-jupiter-engine-5.9.2.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/json-20231013.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/okhttp-4.10.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/okio-jvm-3.4.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/libMonitor/annotations-13.0.jar" path-in-jar="/" />

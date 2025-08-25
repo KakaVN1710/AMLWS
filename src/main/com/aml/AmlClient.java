@@ -128,6 +128,7 @@ public class AmlClient {
 
             String jsonRequest = mapper.writeValueAsString(request);
             logger.info("Request JSON:\n{}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(request));
+            logger.info(ConfigLoader.get("realTimeScan.url"));
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
                 HttpPost post = new HttpPost(ConfigLoader.get("based.url") + ConfigLoader.get("realTimeScan.url"));
