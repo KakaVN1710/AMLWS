@@ -25,15 +25,15 @@ exit /b 2
 :build
 if exist "%BUILD%" rmdir /s /q "%BUILD%"
 mkdir "%BUILD%\lib" "%TAFJ_HOME%\data"
-dir /s /b "%ROOT%\src\main\*.java" > "%BUILD%\aml-src.txt"
+call :listsrc "%ROOT%\src\main" "%BUILD%\aml-src.txt"
 javac -proc:none -encoding UTF-8 -nowarn -cp "%LIBS%" -d "%BUILD%\aml-classes" @"%BUILD%\aml-src.txt" || exit /b 1
 jar cf "%BUILD%\lib\aml-integration-full.jar" -C "%BUILD%\aml-classes" . || exit /b 1
-dir /s /b "%DEMO_DIR%\java\*.java" > "%BUILD%\training-src.txt"
+call :listsrc "%DEMO_DIR%\java" "%BUILD%\training-src.txt"
 javac -encoding UTF-8 -d "%BUILD%\training-classes" @"%BUILD%\training-src.txt" || exit /b 1
 jar cf "%BUILD%\lib\callj-training.jar" -C "%BUILD%\training-classes" . || exit /b 1
-dir /s /b "%DEMO_DIR%\mock-server\src\*.java" > "%BUILD%\mock-src.txt"
+call :listsrc "%DEMO_DIR%\mock-server\src" "%BUILD%\mock-src.txt"
 javac -proc:none -encoding UTF-8 -cp "%LIBS%" -d "%BUILD%\mock-classes" @"%BUILD%\mock-src.txt" || exit /b 1
-dir /s /b "%DEMO_DIR%\t24-sim\src\*.java" > "%BUILD%\sim-src.txt"
+call :listsrc "%DEMO_DIR%\t24-sim\src" "%BUILD%\sim-src.txt"
 javac -proc:none -encoding UTF-8 -cp "%LIBS%" -d "%BUILD%\sim-classes" @"%BUILD%\sim-src.txt" || exit /b 1
 java -cp "%T24_CP%" demo.t24.InitTokenDb
 exit /b %ERRORLEVEL%
@@ -53,3 +53,13 @@ goto collect
 :dorun
 java -cp "%T24_CP%" demo.t24.JbcRunner --bp "%DEMO_DIR%\t24\BP" %ARGS%
 exit /b %ERRORLEVEL%
+
+:listsrc
+REM Ghi danh sach *.java vao argfile cho javac: moi duong dan dat trong "..." va doi '\' thanh '/'
+REM (thu muc co dau cach nhu "Woori Cambodia"; trong argfile '\' la ky tu escape nen phai dung '/')
+if exist "%~2" del "%~2"
+for /r "%~1" %%F in (*.java) do (
+    set "SRC=%%F"
+    >>"%~2" echo "!SRC:\=/!"
+)
+exit /b 0
