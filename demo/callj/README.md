@@ -59,8 +59,6 @@ Trên Windows dùng `run-demo.bat build | mock | run <PROGRAM> [args]`.
 | `AML.CALLJ.MB.DEMO.b` | SUBROUTINE (mainline, không tham số) | **Chạy trên T24 Model Bank thật**: đọc CUSTOMER thật (`F.READ`), CALLJ scan từng khách, hỏi approval cho hồ sơ bị hit. Chạy trong phiên T24 (PGM.FILE loại `M`) hoặc bằng `tRun`. Ghi kết quả ra console và `<TAFJ_HOME>/log/AML.CALLJ.MB.DEMO.log`. Không chạy trong trình giả lập |
 | `AML.CALLJ.MB.DEMO.HIT.b` | SUBROUTINE (mainline, không tham số) | Kịch bản **hit cố định**: luôn quét CUSTOMER `10000083` (Solomon David). Mock đã có sẵn khách này trong watchlist nên kết quả là OVERRIDE rồi PENDING |
 | `AML.MB.SCAN.CUSTOMERS.b` | SUBROUTINE | Phần xử lý dùng chung cho hai routine MB ở trên: khởi tạo phiên, đọc CUSTOMER, gọi CALLJ scan, kiểm tra approval/exposure, ghi log |
-| `KAFKA.CALLJ.PUBLISH.b` | SUBROUTINE | Wrapper CALLJ sang `com.demo.kafka.KafkaPublisher.$publish`: gửi 1 message (topic, key, value), trả về `OK#topic#partition#offset#timestamp` khi Kafka đã ghi nhận |
-| `KAFKA.CALLJ.DEMO.b` | SUBROUTINE (mainline, không tham số) | Demo **T24 → CALLJ → Kafka**: gửi 3 event mẫu (CUSTOMER.UPDATED, ACCOUNT.OPENED, FUNDS.TRANSFER.COMMITTED) và in partition/offset Kafka trả về. Không đọc file T24 nên `tRun` chạy thẳng, **không cần `OFS_SOURCE`**. Chạy được cả trong trình giả lập |
 | `V.AML.SCAN.CUSTOMER.b` | INPUT ROUTINE | Dùng trên **T24 thật**: gắn vào VERSION `CUSTOMER,...`, đọc `R.NEW`, sinh override (`STORE.OVERRIDE`) hoặc error (`STORE.END.ERROR`). Trình giả lập không chạy routine này |
 
 ### Kịch bản `AML.CALLJ.DEMO`
@@ -223,67 +221,10 @@ Chạy lại lần nữa → approval **APPROVED**. Có thể nạp sẵn watchl
 | Không thấy output trong Browser | `CRT` chỉ hiện trên console. Dùng `tRun` cho mainline, dùng VERSION cho Browser |
 | `%TAFJ_HOME%` chưa được set | Token không lưu được nhưng vẫn gọi được (mỗi lần lấy token mới) |
 
-## Demo CALLJ → Kafka
-
-Kịch bản đơn giản: T24 gọi CALLJ để gửi message lên Kafka, Kafka ghi nhận message và trả về **topic / partition / offset**. Kịch bản này không liên quan tới AML hay mock server.
-
-```
- T24 (tRun KAFKA.CALLJ.DEMO)                                  Laptop demo
-   └ KAFKA.CALLJ.PUBLISH                                        Kafka :9092  ──►  Kafka UI http://localhost:8080
-       └ CALLJ "com.demo.kafka.KafkaPublisher", "$publish" ──►   topic t24.callj.demo
-   ◄── "OK#t24.callj.demo#0#12#2026-..."  (Kafka đã ghi nhận)
-```
-
-| Thành phần | Mô tả |
-|---|---|
-| `kafka/docker-compose.yml` | Kafka 3.7.1 một node (KRaft) và Kafka UI |
-| `kafka/src/.../KafkaPublisher.java` | `public static String publish(String)`. Input `topic@key@message`: topic để trống thì lấy `demo.topic`; message được phép chứa `@`. Producer dùng lại cho mọi lần CALLJ, `acks=all`, timeout 5–10 giây |
-| `kafka/src/.../KafkaTail.java` | Đọc và in mọi message trong topic, để chứng minh Kafka đã lưu |
-| `config/kafka.properties` | `bootstrap.servers`, `demo.topic`, timeout. Trong gói triển khai, file này được nhúng vào `callj-kafka.jar` |
-| `kafka/lib/kafka-clients-3.7.1.jar` | Thư viện Kafka client, copy vào classpath TAFJ |
-
-### Chạy trên laptop (trình giả lập)
-
-Cần Docker Desktop.
-```bat
-run-demo.bat kafka-up                  REM Kafka + Kafka UI (lần đầu phải kéo image)
-run-demo.bat build
-run-demo.bat run KAFKA.CALLJ.DEMO      REM 3 dòng "=> RECORDED BY KAFKA: topic=... partition=... offset=..."
-run-demo.bat kafka-tail                REM xem lại message Kafka đã lưu (Ctrl+C để thoát; chờ vài giây để join group)
-```
-Có thể mở `http://localhost:8080` → Topics → `t24.callj.demo` → Messages để khách xem trên giao diện web. Tắt bằng `run-demo.bat kafka-down`.
-
-### Chạy trên T24 Model Bank thật
-
-1. **Bật Kafka với đúng IP laptop** mà máy T24 dùng để kết nối tới:
-   ```bat
-   set KAFKA_HOST=192.168.x.x
-   run-demo.bat kafka-up
-   ```
-   Nếu T24 chạy trên chính laptop thì bỏ qua `KAFKA_HOST`. Nếu T24 ở máy khác thì mở port 9092 trên firewall.
-2. **Tạo gói triển khai:** `run-demo.bat package http://192.168.x.x:8089 192.168.x.x:9092`. Tham số thứ 2 là Kafka.
-3. **Copy lên máy T24:**
-   - `lib\callj-kafka.jar` và `lib\thirdparty\kafka-clients-3.7.1.jar` vào classpath TAFJ (cùng chỗ với các jar trước);
-   - `BP\KAFKA.CALLJ.PUBLISH` và `BP\KAFKA.CALLJ.DEMO` vào BP.
-4. **Compile:** `tCompile KAFKA.CALLJ.PUBLISH`, rồi `tCompile KAFKA.CALLJ.DEMO`.
-5. **Chạy:** `tRun KAFKA.CALLJ.DEMO`, không cần `OFS_SOURCE`. Có thể tạo thêm PGM.FILE loại `M` để chạy từ command line T24, nhưng khi đó output `CRT` không hiện trên Browser, nên xem kết quả ở Kafka UI.
-
-Nếu không có Docker, có thể dùng bản zip Kafka 3.7.1 trên Windows:
-```bat
-bin\windows\kafka-storage.bat random-uuid
-bin\windows\kafka-storage.bat format -t <uuid> -c config\kraft\server.properties
-bin\windows\kafka-server-start.bat config\kraft\server.properties
-```
-Khi T24 ở máy khác, sửa `advertised.listeners=PLAINTEXT://<IP laptop>:9092` trong `server.properties`. Cách này không có Kafka UI, dùng `run-demo.bat kafka-tail` để xem message.
-
-| Lỗi | Nguyên nhân / xử lý |
-|---|---|
-| `=> FAILED : KAFKA TimeoutException: Topic ... not present in metadata after 5000 ms` | Không kết nối được Kafka: kiểm tra `bootstrap.servers` trong jar, `KAFKA_HOST` và firewall port 9092 |
-| Kết nối được lần đầu rồi mới lỗi, log có `localhost:9092` | `KAFKA_HOST` chưa trỏ đúng IP laptop, nên Kafka trả về `localhost` cho T24 |
-| `CALLJ-3 cannot call com.demo.kafka.KafkaPublisher` | Thiếu `callj-kafka.jar` hoặc `kafka-clients-3.7.1.jar` trong classpath TAFJ |
-
 ## Lưu ý về `AmlClient` phát hiện khi làm demo
 
 - **Token cache không tự làm mới khi bị 401.** Nếu server AML thu hồi token hoặc restart mà token trong SQLite chưa hết hạn, mọi lời gọi sẽ lỗi cho tới khi token hết hạn. Demo xử lý bằng cách xoá DB khi `build` và dùng token không trạng thái trên mock. Hệ thống thật nên xoá cache và gọi lại `GetToken` một lần khi nhận 401.
 - **`exposureFlag`, `cachedToken`, `tokenExpiryTime` là biến `static` dùng chung.** Trên TAFJ nhiều phiên chạy chung một JVM, nên khi Scan và Exposure chạy đồng thời có thể lấy nhầm token (AMLWS và AMLWS_EXPOSURE).
 - Khi lỗi, `AmlClient` trả về JSON (`{"error": ...}`) hoặc nguyên body lỗi của API. `AML.CALLJ.INVOKE` coi mọi kết quả bắt đầu bằng `{` là lỗi.
+
+Demo **CALLJ → Kafka** nằm ở repo riêng: [KakaVN1710/Kafka_demo](https://github.com/KakaVN1710/Kafka_demo).
