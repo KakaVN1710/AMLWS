@@ -56,7 +56,7 @@ Trên Windows dùng `run-demo.bat build | mock | run <PROGRAM> [args]`.
 | `AML.CHECK.APPROVAL.SUB.b` | SUBROUTINE | Gọi `callRealTimeApprovalStatus` và `callRealTimeExposure` |
 | `AML.CHECK.APPROVAL.b` | PROGRAM | `AML.CHECK.APPROVAL <ReferenceNo> <OnboardNo>` |
 | `AML.CALLJ.DEMO.b` | PROGRAM | Kịch bản demo đầy đủ (bên dưới) |
-| `AML.CALLJ.MB.DEMO.b` | PROGRAM | **Mainline chạy trên T24 Model Bank thật**: đọc CUSTOMER thật (`F.READ`), CALLJ scan từng khách, hỏi approval cho hồ sơ bị hit. Chạy bằng `tRun`, không chạy trong trình giả lập |
+| `AML.CALLJ.MB.DEMO.b` | SUBROUTINE (mainline, không tham số) | **Chạy trên T24 Model Bank thật**: đọc CUSTOMER thật (`F.READ`), CALLJ scan từng khách, hỏi approval cho hồ sơ bị hit. Chạy trong phiên T24 (PGM.FILE loại `M`) hoặc bằng `tRun`. Ghi kết quả ra console và `<TAFJ_HOME>/log/AML.CALLJ.MB.DEMO.log`. Không chạy trong trình giả lập |
 | `V.AML.SCAN.CUSTOMER.b` | INPUT ROUTINE | Dùng trên **T24 thật**: gắn vào VERSION `CUSTOMER,...`, đọc `R.NEW`, sinh override (`STORE.OVERRIDE`) hoặc error (`STORE.END.ERROR`). Trình giả lập không chạy routine này |
 
 ### Kịch bản `AML.CALLJ.DEMO`
@@ -141,7 +141,6 @@ Không cần copy `TAFJLogging.jar` và `libMonitor`, vì TAFJ runtime đã có 
 ```
 tCompile AML.CALLJ.INVOKE
 tCompile AML.SCAN.CUSTOMER
-tCompile AML.CHECK.APPROVAL.SUB
 tCompile CALLJ.HELLO
 tCompile AML.CALLJ.MB.DEMO
 tCompile V.AML.SCAN.CUSTOMER        (nếu demo thêm VERSION)
@@ -151,7 +150,16 @@ tCompile V.AML.SCAN.CUSTOMER        (nếu demo thêm VERSION)
 
 Trên laptop: `run-demo.bat mock` (giữ cửa sổ mở để khách thấy request đến).
 
-Trên máy T24, **set `OFS_SOURCE` trước**. Mainline chạy ngoài phiên Browser, và `JF.INITIALISE.CONNECTION` cần biến này để khởi tạo phiên T24. Giá trị là ID của một record OFS.SOURCE có sẵn (xem bằng `LIST F.OFS.SOURCE`):
+`AML.CALLJ.MB.DEMO` là SUBROUTINE không tham số, chạy được theo 2 cách:
+
+**Cách 1: chạy trong phiên T24 đã login (không cần `OFS_SOURCE`)**
+1. Tạo record `PGM.FILE` có ID `AML.CALLJ.MB.DEMO`, `TYPE = M` (mainline). Nếu release yêu cầu thì tạo thêm `EB.API`.
+2. Login T24, gõ `AML.CALLJ.MB.DEMO` trên command line rồi Enter. Routine sẽ quét 5 khách hàng bất kỳ.
+3. Trên Browser, `CRT` không hiện ra màn hình, nên kết quả nằm ở `<TAFJ_HOME>\log\AML.CALLJ.MB.DEMO.log`. Mở file này (hoặc `type` trong CMD) để chiếu cho khách. Cửa sổ mock cũng hiện từng request.
+
+**Cách 2: chạy từ console TAFJ bằng `tRun`**
+
+Routine phải tự khởi tạo phiên qua `JF.INITIALISE.CONNECTION`, nên cần `OFS_SOURCE` là ID một record OFS.SOURCE có sẵn (xem `LIST F.OFS.SOURCE`):
 ```
 set OFS_SOURCE=OFSONLINE
 tRun CALLJ.HELLO                               kiểm tra CALLJ + classpath
@@ -165,7 +173,7 @@ Khách hàng Model Bank sẽ ra PASS vì tên không nằm trong watchlist. Đ�
 curl "http://localhost:8089/mock/watchlist?addId=100100"            REM theo CUSTOMER ID
 curl "http://localhost:8089/mock/watchlist?addName=ROBERT SMITH"   REM hoặc theo tên
 ```
-Chạy lại `tRun AML.CALLJ.MB.DEMO 100100` → **OVERRIDE**, có OnboardNo, approval **PENDING**. Sau đó:
+Chạy lại (`tRun AML.CALLJ.MB.DEMO 100100`, hoặc gõ lại trên command line T24 sau khi `addId` đúng khách trong mẫu 5 khách) → **OVERRIDE**, có OnboardNo, approval **PENDING**. Sau đó:
 ```bat
 curl "http://localhost:8089/mock/approve?onboardNo=1001&status=A"
 ```
