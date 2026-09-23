@@ -646,7 +646,8 @@ public class JbcRunner {
         boolean isStatic = methodSpec.startsWith("$");
         String methodName = isStatic ? methodSpec.substring(1) : methodSpec;
 
-        trace(">> CALLJ " + className + " " + methodSpec + " \"" + param + "\"");
+        String where = f.routine.name + "(" + cj.line() + ")";
+        trace(where + ": CALLJ \"" + className + "\", \"" + methodSpec + "\", \"" + param + "\" SETTING " + cj.var());
         long t0 = System.nanoTime();
         int code;
         String result = "";
@@ -703,10 +704,10 @@ public class JbcRunner {
         system0 = String.valueOf(code);
         if (code == 0) {
             f.vars.put(cj.var(), result);
-            trace("<< CALLJ returned (" + ms + " ms): \"" + result + "\"");
+            trace(where + ": " + cj.var() + " = \"" + result + "\"   (SYSTEM(0)=0, " + ms + " ms)");
             return Sig.NORMAL;
         }
-        trace("<< CALLJ FAILED, SYSTEM(0)=" + code + " : " + detail);
+        trace(where + ": ON ERROR -> SYSTEM(0)=" + code + " (" + detail + ")");
         return exec(cj.onError(), 0, f);
     }
 
