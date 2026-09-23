@@ -4,7 +4,9 @@ REM   run-demo.bat build
 REM   run-demo.bat mock                      (keep this window open)
 REM   run-demo.bat run AML.CALLJ.DEMO        (in another window)
 REM   run-demo.bat run AML.CHECK.APPROVAL 100002 1001
-REM   run-demo.bat package [AML_URL]         deployment package for T24 Model Bank (build\t24-deploy)
+REM   run-demo.bat kafka-up ^| kafka-down      Kafka + Kafka UI (docker compose)
+REM   run-demo.bat kafka-tail [topic]         show what Kafka recorded
+REM   run-demo.bat package [AML_URL] [KAFKA_BOOTSTRAP]         deployment package for T24 Model Bank (build\t24-deploy)
 REM   set MOCK_OPTS=-Dmock.watchlist.ids=100100  (mock options, set before "mock")
 setlocal EnableDelayedExpansion
 set DEMO_DIR=%~dp0
@@ -15,14 +17,18 @@ if "%MOCK_PORT%"=="" set MOCK_PORT=8089
 set TAFJ_HOME=%BUILD%\tafj_home
 set LIBS=%ROOT%\libs\*
 set LIBMON=%ROOT%\libMonitor\*
-set T24_CP=%DEMO_DIR%\config;%BUILD%\lib\aml-integration-full.jar;%BUILD%\lib\callj-training.jar;%LIBS%;%LIBMON%;%BUILD%\sim-classes
+set KAFKA_LIB=%DEMO_DIR%\kafka\lib\*
+set T24_CP=%DEMO_DIR%\config;%BUILD%\lib\aml-integration-full.jar;%BUILD%\lib\callj-training.jar;%BUILD%\lib\callj-kafka.jar;%KAFKA_LIB%;%LIBS%;%LIBMON%;%BUILD%\sim-classes
 set MOCK_CP=%BUILD%\mock-classes;%LIBS%
 
 if "%1"=="build" goto build
 if "%1"=="mock" goto mock
 if "%1"=="run" goto run
 if "%1"=="package" goto package
-echo Usage: run-demo.bat build ^| mock ^| run ^<PROGRAM^> [args...] ^| package [AML_URL]
+if "%1"=="kafka-up" goto kafkaup
+if "%1"=="kafka-down" goto kafkadown
+if "%1"=="kafka-tail" goto kafkatail
+echo Usage: run-demo.bat build ^| mock ^| run ^<PROGRAM^> [args...] ^| package [AML_URL] [KAFKA_BOOTSTRAP] ^| kafka-up ^| kafka-down ^| kafka-tail [topic]
 exit /b 2
 
 :build
@@ -34,6 +40,9 @@ jar cf "%BUILD%\lib\aml-integration-full.jar" -C "%BUILD%\aml-classes" . || exit
 call :listsrc "%DEMO_DIR%\java" "%BUILD%\training-src.txt"
 javac -encoding UTF-8 -d "%BUILD%\training-classes" @"%BUILD%\training-src.txt" || exit /b 1
 jar cf "%BUILD%\lib\callj-training.jar" -C "%BUILD%\training-classes" . || exit /b 1
+call :listsrc "%DEMO_DIR%\kafka\src" "%BUILD%\kafka-src.txt"
+javac -proc:none -encoding UTF-8 -cp "%KAFKA_LIB%;%LIBS%" -d "%BUILD%\kafka-classes" @"%BUILD%\kafka-src.txt" || exit /b 1
+jar cf "%BUILD%\lib\callj-kafka.jar" -C "%BUILD%\kafka-classes" . || exit /b 1
 call :listsrc "%DEMO_DIR%\mock-server\src" "%BUILD%\mock-src.txt"
 javac -proc:none -encoding UTF-8 -cp "%LIBS%" -d "%BUILD%\mock-classes" @"%BUILD%\mock-src.txt" || exit /b 1
 call :listsrc "%DEMO_DIR%\t24-sim\src" "%BUILD%\sim-src.txt"
@@ -48,6 +57,8 @@ exit /b %ERRORLEVEL%
 :package
 set AML_URL=%~2
 if "%AML_URL%"=="" set AML_URL=http://localhost:8089
+set KAFKA_BOOTSTRAP=%~3
+if "%KAFKA_BOOTSTRAP%"=="" set KAFKA_BOOTSTRAP=localhost:9092
 call :build
 if errorlevel 1 exit /b 1
 set OUT=%BUILD%\t24-deploy
@@ -61,6 +72,14 @@ xcopy /e /i /q /y "%BUILD%\aml-classes" "%BUILD%\pkg-classes" >nul
 copy /y "%OUT%\conf\aml.properties" "%BUILD%\pkg-classes\aml.properties" >nul
 jar cf "%OUT%\lib\aml-integration-full.jar" -C "%BUILD%\pkg-classes" . || exit /b 1
 copy /y "%BUILD%\lib\callj-training.jar" "%OUT%\lib\" >nul
+(for /f "usebackq delims=" %%L in ("%DEMO_DIR%\config\kafka.properties") do (
+    set "LINE=%%L"
+    if "!LINE:~0,18!"=="bootstrap.servers=" (echo bootstrap.servers=%KAFKA_BOOTSTRAP%) else (echo !LINE!)
+)) > "%OUT%\conf\kafka.properties"
+xcopy /e /i /q /y "%BUILD%\kafka-classes" "%BUILD%\pkg-kafka" >nul
+copy /y "%OUT%\conf\kafka.properties" "%BUILD%\pkg-kafka\kafka.properties" >nul
+jar cf "%OUT%\lib\callj-kafka.jar" -C "%BUILD%\pkg-kafka" . || exit /b 1
+copy /y "%DEMO_DIR%\kafka\lib\*.jar" "%OUT%\lib\thirdparty\" >nul
 for %%J in (httpclient5-5.5 httpcore5-5.3.4 httpcore5-h2-5.3.4 jackson-core-2.15.0 jackson-databind-2.15.0 jackson-annotations-2.15.0 sqlite-jdbc-3.50.1.0) do copy /y "%ROOT%\libs\%%J.jar" "%OUT%\lib\thirdparty\" >nul
 copy /y "%TAFJ_HOME%\data\AMLScan.db" "%OUT%\data\" >nul
 REM TAFJ BP: file name = routine name (drop the .b extension)
@@ -73,9 +92,21 @@ for %%F in ("%DEMO_DIR%\t24\BP\*.b") do copy /y "%%F" "%OUT%\BP\%%~nF" >nul
     echo(echo OFS_SOURCE=%%OFS_SOURCE%%
     echo(call tRun AML.CALLJ.MB.DEMO %%*
 ) > "%OUT%\run-mb-demo.bat"
-echo ^>^> Deployment package: %OUT%   (based.url=%AML_URL%)
+echo ^>^> Deployment package: %OUT%   (based.url=%AML_URL%, bootstrap.servers=%KAFKA_BOOTSTRAP%)
 dir /s /b "%OUT%"
 exit /b 0
+
+:kafkaup
+docker compose -f "%DEMO_DIR%\kafka\docker-compose.yml" up -d
+exit /b %ERRORLEVEL%
+
+:kafkadown
+docker compose -f "%DEMO_DIR%\kafka\docker-compose.yml" down
+exit /b %ERRORLEVEL%
+
+:kafkatail
+java -cp "%BUILD%\lib\callj-kafka.jar;%KAFKA_LIB%;%LIBS%" com.demo.kafka.KafkaTail %2 %3
+exit /b %ERRORLEVEL%
 
 :run
 shift
