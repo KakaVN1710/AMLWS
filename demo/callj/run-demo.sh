@@ -61,6 +61,14 @@ package_t24() {
   cp "$TAFJ_HOME/data/AMLScan.db" "$out/data/"
   cp "$DEMO_DIR"/t24/BP/*.b "$out/BP/"
   for f in "$out"/BP/*.b; do mv "$f" "${f%.b}"; done      # TAFJ BP: ten file = ten routine
+  cat > "$out/run-mb-demo.bat" <<'BAT'
+@echo off
+REM Chay demo mainline tren TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
+REM OFS_SOURCE = ID mot record OFS.SOURCE co san (xem: tRun LIST F.OFS.SOURCE)
+if "%OFS_SOURCE%"=="" set OFS_SOURCE=OFSONLINE
+echo OFS_SOURCE=%OFS_SOURCE%
+call tRun AML.CALLJ.MB.DEMO %*
+BAT
   echo ">> Goi trien khai: $out   (based.url=$url)"
   (cd "$out" && find . -type f | sort)
 }

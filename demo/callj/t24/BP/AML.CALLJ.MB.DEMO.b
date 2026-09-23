@@ -45,7 +45,17 @@
 *-----------------------------------------------------------------------------
 INITIALISE.SESSION:
 * Khi chay bang tRun (ngoai phien Browser) phai tu khoi tao common T24.
-* Neu chay tu mot phien T24 da login thi co the bo 2 lenh nay.
+* JF.INITIALISE.CONNECTION can bien moi truong OFS_SOURCE = ID mot record OFS.SOURCE
+*   vd:  set OFS_SOURCE=OFSONLINE   (xem cac ID co san: LIST F.OFS.SOURCE)
+    Y.OFS.SOURCE = ''
+    IF NOT(GETENV('OFS_SOURCE', Y.OFS.SOURCE)) THEN Y.OFS.SOURCE = ''
+    IF Y.OFS.SOURCE = '' THEN
+        CRT 'Chua set bien moi truong OFS_SOURCE (can cho JF.INITIALISE.CONNECTION).'
+        CRT 'Vi du:  set OFS_SOURCE=OFSONLINE   roi chay lai tRun AML.CALLJ.MB.DEMO'
+        CRT 'Xem cac OFS.SOURCE co san:  LIST F.OFS.SOURCE'
+        STOP
+    END
+    CRT 'OFS_SOURCE = ':Y.OFS.SOURCE
     CALL JF.INITIALISE.CONNECTION
     IF ID.COMPANY = '' THEN CALL LOAD.COMPANY('GB0010001')      ;* company mac dinh Model Bank
     IF OPERATOR = '' THEN OPERATOR = 'INPUTTER'

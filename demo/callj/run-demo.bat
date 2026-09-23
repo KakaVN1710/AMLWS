@@ -65,6 +65,14 @@ for %%J in (httpclient5-5.5 httpcore5-5.3.4 httpcore5-h2-5.3.4 jackson-core-2.15
 copy /y "%TAFJ_HOME%\data\AMLScan.db" "%OUT%\data\" >nul
 REM TAFJ BP: ten file = ten routine (bo duoi .b)
 for %%F in ("%DEMO_DIR%\t24\BP\*.b") do copy /y "%%F" "%OUT%\BP\%%~nF" >nul
+(
+    echo(@echo off
+    echo(REM Chay demo mainline tren TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
+    echo(REM OFS_SOURCE = ID mot record OFS.SOURCE co san ^(xem: tRun LIST F.OFS.SOURCE^)
+    echo(if "%%OFS_SOURCE%%"=="" set OFS_SOURCE=OFSONLINE
+    echo(echo OFS_SOURCE=%%OFS_SOURCE%%
+    echo(call tRun AML.CALLJ.MB.DEMO %%*
+) > "%OUT%\run-mb-demo.bat"
 echo ^>^> Goi trien khai: %OUT%   (based.url=%AML_URL%)
 dir /s /b "%OUT%"
 exit /b 0

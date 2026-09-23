@@ -151,12 +151,14 @@ tCompile V.AML.SCAN.CUSTOMER        (nếu demo thêm VERSION)
 
 Trên laptop: `run-demo.bat mock` (giữ cửa sổ mở để khách thấy request đến).
 
-Trên máy T24:
+Trên máy T24, **set `OFS_SOURCE` trước**. Mainline chạy ngoài phiên Browser, và `JF.INITIALISE.CONNECTION` cần biến này để khởi tạo phiên T24. Giá trị là ID của một record OFS.SOURCE có sẵn (xem bằng `LIST F.OFS.SOURCE`):
 ```
+set OFS_SOURCE=OFSONLINE
 tRun CALLJ.HELLO                               kiểm tra CALLJ + classpath
 tRun AML.CALLJ.MB.DEMO                         quét 5 khách hàng bất kỳ của Model Bank
 tRun AML.CALLJ.MB.DEMO 100100 100724           quét khách hàng chỉ định (ID ví dụ, lấy ID thật bằng LIST F.CUSTOMER)
 ```
+Hoặc dùng `run-mb-demo.bat [CUSTOMER.ID ...]` trong gói triển khai. Script này tự set `OFS_SOURCE=OFSONLINE` nếu chưa có.
 
 Khách hàng Model Bank sẽ ra PASS vì tên không nằm trong watchlist. Để tạo **hit trực tiếp** trước mặt khách:
 ```bat
@@ -182,7 +184,9 @@ Chạy lại lần nữa → approval **APPROVED**. Có thể nạp sẵn watchl
 | `CALLJ-3 Cannot find class` | Jar chưa có trong classpath TAFJ, hoặc chưa restart app server |
 | `AML-API {"error": "Connect to ... refused"}` | Sai URL trong `aml.properties` (đã nhúng trong jar), mock chưa chạy, hoặc firewall chặn |
 | `AML-API {"Message":"Authorization has been denied..."}` | Token cũ trong `AMLScan.db`. Xoá file DB, hoặc chờ 5 phút cho token hết hạn |
-| Lỗi ở `JF.INITIALISE.CONNECTION` / `LOAD.COMPANY` | Tuỳ release, mainline chạy ngoài phiên T24 cần khởi tạo khác. Có thể chạy từ phiên T24 đã login, hoặc chỉnh `INITIALISE.SESSION` |
+| `FATAL ERROR FROM T24.INITIALISE WARNING: OFS SOURCE ID not specified` | Chưa set `OFS_SOURCE`. Chạy `set OFS_SOURCE=<ID OFS.SOURCE>` rồi chạy lại |
+| Các dòng `SLF4J(W): ...` | Chỉ là cảnh báo về logging binding của TAFJ, bỏ qua được |
+| Lỗi khác ở `JF.INITIALISE.CONNECTION` / `LOAD.COMPANY` | Tuỳ release, mainline chạy ngoài phiên T24 cần khởi tạo khác. Có thể chạy từ phiên T24 đã login, hoặc chỉnh `INITIALISE.SESSION` |
 | Không thấy output trong Browser | `CRT` chỉ hiện trên console. Dùng `tRun` cho mainline, dùng VERSION cho Browser |
 | `%TAFJ_HOME%` chưa được set | Token không lưu được nhưng vẫn gọi được (mỗi lần lấy token mới) |
 
