@@ -32,10 +32,10 @@ import javax.crypto.spec.SecretKeySpec;
  * Demo helpers:
  *   GET  /mock/approve?onboardNo=1001&status=A   (A=Approved, R=Rejected, P=Pending)
  *   GET  /mock/state                              (dump onboard cases + watchlist)
- *   GET  /mock/watchlist?addName=ROBERT SMITH     (them ten vao watchlist khi dang demo)
- *   GET  /mock/watchlist?addId=100100             (them CUSTOMER ID - so voi ClientNo/ReferenceNo)
+ *   GET  /mock/watchlist?addName=ROBERT SMITH     (add a name to the watchlist during the demo)
+ *   GET  /mock/watchlist?addId=100100             (add a CUSTOMER id - matched on ClientNo/ReferenceNo)
  *   GET  /mock/watchlist?removeName=...&removeId=...
- *   Khoi tao san: -Dmock.watchlist="NAME 1,NAME 2" -Dmock.watchlist.ids=100100,100200
+ *   Preload: -Dmock.watchlist="NAME 1,NAME 2" -Dmock.watchlist.ids=100100,100200
  *
  * Scan rules (evaluated on the request):
  *   - ClientID in WHITELIST                         -> WhitelistStatus=T, no hit
@@ -67,7 +67,8 @@ public class MockAmlServer {
     public MockAmlServer(String authId, String authPw) {
         this.authId = authId;
         this.authPw = authPw;
-        watchlist.addAll(List.of("NGUYEN VAN A", "OSAMA BIN LADEN", "JOHN DOE SANCTIONED"));
+        watchlist.addAll(List.of("NGUYEN VAN A", "OSAMA BIN LADEN", "JOHN DOE SANCTIONED", "SOLOMON DAVID"));
+        watchlistIds.add("10000083");                   // Model Bank customer Solomon David (AML.CALLJ.MB.DEMO.HIT)
         for (String n : System.getProperty("mock.watchlist", "").split(",")) {
             if (!n.isBlank()) watchlist.add(n.trim().toUpperCase(Locale.ROOT));
         }
@@ -292,7 +293,7 @@ public class MockAmlServer {
     private boolean checkBearer(HttpExchange ex) {
         String auth = ex.getRequestHeaders().getFirst("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) return false;
-        // token = <prefix>.<expiryEpochSec>.<hmac>  (stateless: van hop le sau khi restart mock)
+        // token = <prefix>.<expiryEpochSec>.<hmac>  (stateless: still valid after a mock restart)
         String[] p = auth.substring(7).split("\\.");
         if (p.length != 3) return false;
         try {

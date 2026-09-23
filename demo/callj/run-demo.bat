@@ -1,11 +1,11 @@
 @echo off
 REM Demo CALLJ T24 -> AmlClient -> Mock AML server (Windows)
 REM   run-demo.bat build
-REM   run-demo.bat mock                      (de cua so nay mo)
-REM   run-demo.bat run AML.CALLJ.DEMO        (o cua so khac)
+REM   run-demo.bat mock                      (keep this window open)
+REM   run-demo.bat run AML.CALLJ.DEMO        (in another window)
 REM   run-demo.bat run AML.CHECK.APPROVAL 100002 1001
-REM   run-demo.bat package [AML_URL]         goi trien khai len T24 Model Bank (build\t24-deploy)
-REM   set MOCK_OPTS=-Dmock.watchlist.ids=100100  (tuy chon cho mock, truoc khi chay "mock")
+REM   run-demo.bat package [AML_URL]         deployment package for T24 Model Bank (build\t24-deploy)
+REM   set MOCK_OPTS=-Dmock.watchlist.ids=100100  (mock options, set before "mock")
 setlocal EnableDelayedExpansion
 set DEMO_DIR=%~dp0
 set DEMO_DIR=%DEMO_DIR:~0,-1%
@@ -63,17 +63,17 @@ jar cf "%OUT%\lib\aml-integration-full.jar" -C "%BUILD%\pkg-classes" . || exit /
 copy /y "%BUILD%\lib\callj-training.jar" "%OUT%\lib\" >nul
 for %%J in (httpclient5-5.5 httpcore5-5.3.4 httpcore5-h2-5.3.4 jackson-core-2.15.0 jackson-databind-2.15.0 jackson-annotations-2.15.0 sqlite-jdbc-3.50.1.0) do copy /y "%ROOT%\libs\%%J.jar" "%OUT%\lib\thirdparty\" >nul
 copy /y "%TAFJ_HOME%\data\AMLScan.db" "%OUT%\data\" >nul
-REM TAFJ BP: ten file = ten routine (bo duoi .b)
+REM TAFJ BP: file name = routine name (drop the .b extension)
 for %%F in ("%DEMO_DIR%\t24\BP\*.b") do copy /y "%%F" "%OUT%\BP\%%~nF" >nul
 (
     echo(@echo off
-    echo(REM Chay demo mainline tren TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
-    echo(REM OFS_SOURCE = ID mot record OFS.SOURCE co san ^(xem: tRun LIST F.OFS.SOURCE^)
+    echo(REM Run the Model Bank demo on TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
+    echo(REM OFS_SOURCE = id of an existing OFS.SOURCE record ^(see: tRun LIST F.OFS.SOURCE^)
     echo(if "%%OFS_SOURCE%%"=="" set OFS_SOURCE=OFSONLINE
     echo(echo OFS_SOURCE=%%OFS_SOURCE%%
     echo(call tRun AML.CALLJ.MB.DEMO %%*
 ) > "%OUT%\run-mb-demo.bat"
-echo ^>^> Goi trien khai: %OUT%   (based.url=%AML_URL%)
+echo ^>^> Deployment package: %OUT%   (based.url=%AML_URL%)
 dir /s /b "%OUT%"
 exit /b 0
 
@@ -90,8 +90,8 @@ java -cp "%T24_CP%" demo.t24.JbcRunner --bp "%DEMO_DIR%\t24\BP" %ARGS%
 exit /b %ERRORLEVEL%
 
 :listsrc
-REM Ghi danh sach *.java vao argfile cho javac: moi duong dan dat trong "..." va doi '\' thanh '/'
-REM (thu muc co dau cach nhu "Woori Cambodia"; trong argfile '\' la ky tu escape nen phai dung '/')
+REM Write *.java into a javac argfile: each path quoted and '\' turned into '/'
+REM (folders with spaces such as "Woori Cambodia"; '\' is an escape character in argfiles)
 if exist "%~2" del "%~2"
 for /r "%~1" %%F in (*.java) do (
     set "SRC=%%F"

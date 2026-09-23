@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Demo CALLJ T24 -> AmlClient -> Mock AML server
-#   ./run-demo.sh            build + start mock + chay AML.CALLJ.DEMO + dung mock
-#   ./run-demo.sh build      chi build
-#   ./run-demo.sh mock       chay mock server (foreground)
-#   ./run-demo.sh run <PROGRAM> [args...]   chay 1 routine jBC trong t24/BP (mock phai dang chay)
-#   ./run-demo.sh package [AML_URL]          tao goi trien khai len T24 Model Bank that (build/t24-deploy)
-#                                            AML_URL mac dinh http://localhost:8089 (URL mock nhin tu may T24)
-#   MOCK_OPTS='-Dmock.watchlist.ids=100100' ./run-demo.sh mock   (tuy chon cho mock)
+#   ./run-demo.sh            build + start mock + run AML.CALLJ.DEMO + stop mock
+#   ./run-demo.sh build      build only
+#   ./run-demo.sh mock       run the mock server (foreground)
+#   ./run-demo.sh run <PROGRAM> [args...]   run one jBC routine from t24/BP (mock must be running)
+#   ./run-demo.sh package [AML_URL]          build the deployment package for a real T24 Model Bank (build/t24-deploy)
+#                                            AML_URL defaults to http://localhost:8089 (mock URL as seen from the T24 server)
+#   MOCK_OPTS='-Dmock.watchlist.ids=100100' ./run-demo.sh mock   (mock options)
 set -euo pipefail
 
 DEMO_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -16,15 +16,15 @@ MOCK_PORT="${MOCK_PORT:-8089}"
 export TAFJ_HOME="$BUILD/tafj_home"          # sqlite.db.path=%TAFJ_HOME%/data/AMLScan.db
 
 LIBS="$ROOT/libs/*"
-LIBMON="$ROOT/libMonitor/*"                 # TemnLogger/OpenTelemetry (co san trong TAFJ runtime)
-# Classpath "T24/TAFJ": config (aml.properties) truoc, sau do cac jar CALLJ (tuong duong BNK_EJB/lib)
+LIBMON="$ROOT/libMonitor/*"                 # TemnLogger/OpenTelemetry (already part of the TAFJ runtime)
+# "T24/TAFJ" classpath: config (aml.properties) first, then the CALLJ jars (like BNK_EJB/lib)
 T24_CP="$DEMO_DIR/config:$BUILD/lib/aml-integration-full.jar:$BUILD/lib/callj-training.jar:$LIBS:$LIBMON:$BUILD/sim-classes"
 MOCK_CP="$BUILD/mock-classes:$LIBS"
 
 build() {
-  echo ">> Build aml-integration-full.jar tu src/main (AmlClient)"
+  echo ">> Build aml-integration-full.jar from src/main (AmlClient)"
   rm -rf "$BUILD/aml-classes" "$BUILD/training-classes" "$BUILD/mock-classes" "$BUILD/sim-classes"
-  rm -f "$TAFJ_HOME/data/AMLScan.db"          # xoa token cache cu
+  rm -f "$TAFJ_HOME/data/AMLScan.db"          # drop the old token cache
   mkdir -p "$BUILD/lib" "$TAFJ_HOME/data"
   javac -proc:none -encoding UTF-8 -nowarn -cp "$LIBS" -d "$BUILD/aml-classes" $(find "$ROOT/src/main" -name '*.java')
   jar cf "$BUILD/lib/aml-integration-full.jar" -C "$BUILD/aml-classes" .
@@ -42,7 +42,7 @@ mock() {
   exec java -Dmock.port="$MOCK_PORT" ${MOCK_OPTS:-} -cp "$MOCK_CP" demo.mock.MockAmlServer
 }
 
-# Goi trien khai cho TAFJ: jar (kem aml.properties tro toi mock), thu vien, token DB, routine
+# TAFJ deployment package: jar (with aml.properties pointing to the mock), libraries, token DB, routines
 package_t24() {
   local url="${1:-http://localhost:8089}"
   local out="$BUILD/t24-deploy"
@@ -60,16 +60,16 @@ package_t24() {
   done
   cp "$TAFJ_HOME/data/AMLScan.db" "$out/data/"
   cp "$DEMO_DIR"/t24/BP/*.b "$out/BP/"
-  for f in "$out"/BP/*.b; do mv "$f" "${f%.b}"; done      # TAFJ BP: ten file = ten routine
+  for f in "$out"/BP/*.b; do mv "$f" "${f%.b}"; done      # TAFJ BP: file name = routine name
   cat > "$out/run-mb-demo.bat" <<'BAT'
 @echo off
-REM Chay demo mainline tren TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
-REM OFS_SOURCE = ID mot record OFS.SOURCE co san (xem: tRun LIST F.OFS.SOURCE)
+REM Run the Model Bank demo on TAFJ:  run-mb-demo.bat [CUSTOMER.ID ...]
+REM OFS_SOURCE = id of an existing OFS.SOURCE record (see: tRun LIST F.OFS.SOURCE)
 if "%OFS_SOURCE%"=="" set OFS_SOURCE=OFSONLINE
 echo OFS_SOURCE=%OFS_SOURCE%
 call tRun AML.CALLJ.MB.DEMO %*
 BAT
-  echo ">> Goi trien khai: $out   (based.url=$url)"
+  echo ">> Deployment package: $out   (based.url=$url)"
   (cd "$out" && find . -type f | sort)
 }
 
@@ -82,7 +82,7 @@ wait_port() {
     (echo > "/dev/tcp/127.0.0.1/$MOCK_PORT") 2>/dev/null && return 0
     sleep 0.2
   done
-  echo "Mock server khong khoi dong duoc" >&2; return 1
+  echo "Mock server did not start" >&2; return 1
 }
 
 case "${1:-all}" in

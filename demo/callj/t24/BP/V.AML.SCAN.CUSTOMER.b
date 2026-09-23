@@ -1,15 +1,15 @@
     SUBROUTINE V.AML.SCAN.CUSTOMER
 *-----------------------------------------------------------------------------
-* INPUT ROUTINE gan vao VERSION CUSTOMER,AML.INPUT (truong INPUT.ROUTINE)
-* Chi dung tren T24 that (TAFJ) - trinh gia lap khong ho tro R.NEW/STORE.OVERRIDE.
+* INPUT ROUTINE attached to VERSION CUSTOMER,AML.INPUT (field INPUT.ROUTINE)
+* Real T24 (TAFJ) only - the simulator does not support R.NEW / STORE.OVERRIDE.
 *
 *   CUSTOMER commit --> V.AML.SCAN.CUSTOMER --> AML.SCAN.CUSTOMER
 *                   --> AML.CALLJ.INVOKE --CALLJ--> main.com.aml.AmlClient.callRealTimeScan
 *
-*   PASS     : cho commit binh thuong
-*   OVERRIDE : sinh override (nguoi dung phai chap nhan)
-*   BLOCK    : bao loi, khong cho commit
-*   ERROR    : loi tich hop -> bao loi (tuy chinh sach co the doi thanh override)
+*   PASS     : normal commit
+*   OVERRIDE : raise an override (user must accept it)
+*   BLOCK    : raise an error, commit is rejected
+*   ERROR    : integration error -> raise an error (could be an override, per bank policy)
 *-----------------------------------------------------------------------------
     $INSERT I_COMMON
     $INSERT I_EQUATE
@@ -41,7 +41,7 @@ BUILD.PARAM:
     Y.CLIENT.ID = R.NEW(EB.CUS.LEGAL.ID)<1,1>
     Y.PASSPORT = ''
     IF R.NEW(EB.CUS.LEGAL.DOC.NAME)<1,1> = 'PASSPORT' THEN Y.PASSPORT = Y.CLIENT.ID
-    Y.RISK.FACTOR = '2#KH|KH|02|0|0|1|0'            ;* TODO: tinh tu du lieu KYC cua ngan hang
+    Y.RISK.FACTOR = '2#KH|KH|02|0|0|1|0'            ;* TODO: derive from the bank's KYC data
 
     Y.PARAM = Y.OFFICER:'@':Y.LOCATION:'@':Y.SOURCE:'@':Y.REF:'@':Y.SERVICE.TYPE
     Y.PARAM := '@':Y.REDFLAG:'@':Y.CLIENT.TYPE:'@':Y.CLIENT.EXIST:'@':Y.NAME

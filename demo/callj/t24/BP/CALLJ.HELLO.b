@@ -1,10 +1,10 @@
     PROGRAM CALLJ.HELLO
 *-----------------------------------------------------------------------------
-* Vi du CALLJ co ban (muc 4 tai lieu CALLJ Training):
-*   Goi public static String com.temenos.training.HelloWorld.greet(String)
-* Luu y cu phap that cua TAFJ/jBASE:
+* Basic CALLJ example (CALLJ training, section 4):
+*   calls public static String com.temenos.training.HelloWorld.greet(String)
+* TAFJ / jBASE syntax:
 *   CALLJ <class>, [$]<method>, <param> SETTING <ret> [ON ERROR ...]
-*   - '$' truoc ten method = static method
+*   - '$' before the method name = static method
 *-----------------------------------------------------------------------------
     V.REPLY = ''
     CALLJ "com.temenos.training.HelloWorld", "$greet", "T24 Developer" SETTING V.REPLY ON ERROR

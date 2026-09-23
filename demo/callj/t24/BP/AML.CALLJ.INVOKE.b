@@ -1,14 +1,14 @@
     SUBROUTINE AML.CALLJ.INVOKE(Y.METHOD, Y.PARAM, Y.RESULT, Y.ERROR)
 *-----------------------------------------------------------------------------
-* Wrapper CALLJ -> main.com.aml.AmlClient (aml-integration-full.jar)
+* CALLJ wrapper for main.com.aml.AmlClient (aml-integration-full.jar)
 *
 * IN  : Y.METHOD  callRealTimeScan | callRealTimeApprovalStatus | callRealTimeExposure
-*       Y.PARAM   chuoi tham so, cac truong phan cach boi '@'
-* OUT : Y.RESULT  chuoi ket qua, cac truong phan cach boi '#'
-*       Y.ERROR   rong neu thanh cong, nguoc lai la mo ta loi
+*       Y.PARAM   request fields separated by '@'
+* OUT : Y.RESULT  response fields separated by '#'
+*       Y.ERROR   empty on success, otherwise the error description
 *
-* Trien khai tren TAFJ: copy aml-integration-full.jar + libs vao classpath
-* (vd <TAFJ_HOME>/ext hoac BNK_EJB/lib), aml.properties dat trong classpath.
+* TAFJ deployment: aml-integration-full.jar and its libraries on the TAFJ
+* classpath, aml.properties on the classpath (embedded in the demo jar).
 *-----------------------------------------------------------------------------
     Y.RESULT = ''
     Y.ERROR = ''
@@ -39,8 +39,8 @@
     END
     IF Y.ERROR NE '' THEN RETURN
 
-* AmlClient tra ve JSON khi loi (vd {"error": "..."} hoac body loi cua API)
-* Ket qua hop le luon la chuoi phan cach '#', khong bat dau bang '{'
+* On failure AmlClient returns JSON ({"error": "..."} or the API error body).
+* A valid result is always '#' delimited and never starts with '{'.
     IF Y.RET[1,1] = '{' THEN
         Y.ERROR = 'AML-API ':Y.RET
         RETURN

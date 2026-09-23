@@ -57,6 +57,8 @@ Trên Windows dùng `run-demo.bat build | mock | run <PROGRAM> [args]`.
 | `AML.CHECK.APPROVAL.b` | PROGRAM | `AML.CHECK.APPROVAL <ReferenceNo> <OnboardNo>` |
 | `AML.CALLJ.DEMO.b` | PROGRAM | Kịch bản demo đầy đủ (bên dưới) |
 | `AML.CALLJ.MB.DEMO.b` | SUBROUTINE (mainline, không tham số) | **Chạy trên T24 Model Bank thật**: đọc CUSTOMER thật (`F.READ`), CALLJ scan từng khách, hỏi approval cho hồ sơ bị hit. Chạy trong phiên T24 (PGM.FILE loại `M`) hoặc bằng `tRun`. Ghi kết quả ra console và `<TAFJ_HOME>/log/AML.CALLJ.MB.DEMO.log`. Không chạy trong trình giả lập |
+| `AML.CALLJ.MB.DEMO.HIT.b` | SUBROUTINE (mainline, không tham số) | Kịch bản **hit cố định**: luôn quét CUSTOMER `10000083` (Solomon David). Mock đã có sẵn khách này trong watchlist nên kết quả là OVERRIDE rồi PENDING |
+| `AML.MB.SCAN.CUSTOMERS.b` | SUBROUTINE | Phần xử lý dùng chung cho hai routine MB ở trên: khởi tạo phiên, đọc CUSTOMER, gọi CALLJ scan, kiểm tra approval/exposure, ghi log |
 | `V.AML.SCAN.CUSTOMER.b` | INPUT ROUTINE | Dùng trên **T24 thật**: gắn vào VERSION `CUSTOMER,...`, đọc `R.NEW`, sinh override (`STORE.OVERRIDE`) hoặc error (`STORE.END.ERROR`). Trình giả lập không chạy routine này |
 
 ### Kịch bản `AML.CALLJ.DEMO`
@@ -76,7 +78,9 @@ Trên Windows dùng `run-demo.bat build | mock | run <PROGRAM> [args]`.
 Thứ tự trường của chuỗi kết quả scan (theo `RealTimeScanResponse.toDelimitedString`):
 `MatchStatus # WhitelistStatus # OnboardNo # MatchURL # RiskStatus # PassportStatus # SanctionCountryStatus # EDDStatus # EDDURL # AdvMediaStatus # AdvMediaURL`
 
-Quy tắc của mock: tên thuộc `NGUYEN VAN A`, `OSAMA BIN LADEN`, `JOHN DOE SANCTIONED` là trúng watchlist; quốc gia `KP/IR/SY/CU` bị cấm vận; tên `TRAN THI B` có adverse media; ClientID `WL000001` nằm trong whitelist; tên `SERVER ERROR` trả HTTP 500.
+Quy tắc của mock: tên thuộc `NGUYEN VAN A`, `OSAMA BIN LADEN`, `JOHN DOE SANCTIONED` là trúng watchlist; quốc gia `KP/IR/SY/CU` bị cấm vận; tên `TRAN THI B` có adverse media; ClientID `WL000001` nằm trong whitelist; tên `SERVER ERROR` trả HTTP 500. Riêng demo Model Bank: tên `SOLOMON DAVID` và CUSTOMER ID `10000083` có sẵn trong watchlist.
+
+Toàn bộ output của routine, mock và trình giả lập đều bằng tiếng Anh để demo cho khách nước ngoài.
 
 ## Điểm khác so với tài liệu training
 
@@ -141,8 +145,10 @@ Không cần copy `TAFJLogging.jar` và `libMonitor`, vì TAFJ runtime đã có 
 ```
 tCompile AML.CALLJ.INVOKE
 tCompile AML.SCAN.CUSTOMER
+tCompile AML.MB.SCAN.CUSTOMERS
 tCompile CALLJ.HELLO
 tCompile AML.CALLJ.MB.DEMO
+tCompile AML.CALLJ.MB.DEMO.HIT
 tCompile V.AML.SCAN.CUSTOMER        (nếu demo thêm VERSION)
 ```
 
@@ -153,8 +159,10 @@ Trên laptop: `run-demo.bat mock` (giữ cửa sổ mở để khách thấy req
 `AML.CALLJ.MB.DEMO` là SUBROUTINE không tham số, chạy được theo 2 cách:
 
 **Cách 1: chạy trong phiên T24 đã login (không cần `OFS_SOURCE`)**
-1. Tạo record `PGM.FILE` có ID `AML.CALLJ.MB.DEMO`, `TYPE = M` (mainline). Nếu release yêu cầu thì tạo thêm `EB.API`.
-2. Login T24, gõ `AML.CALLJ.MB.DEMO` trên command line rồi Enter. Routine sẽ quét 5 khách hàng bất kỳ.
+1. Tạo record `PGM.FILE` có ID `AML.CALLJ.MB.DEMO` và `AML.CALLJ.MB.DEMO.HIT`, `TYPE = M` (mainline). Nếu release yêu cầu thì tạo thêm `EB.API`.
+2. Login T24, gõ trên command line rồi Enter:
+   - `AML.CALLJ.MB.DEMO`: quét 5 khách hàng bất kỳ (thường ra PASS).
+   - `AML.CALLJ.MB.DEMO.HIT`: quét CUSTOMER `10000083` Solomon David, ra **OVERRIDE** và approval **PENDING**.
 3. Trên Browser, `CRT` không hiện ra màn hình, nên kết quả nằm ở `<TAFJ_HOME>\log\AML.CALLJ.MB.DEMO.log`. Mở file này (hoặc `type` trong CMD) để chiếu cho khách. Cửa sổ mock cũng hiện từng request.
 
 **Cách 2: chạy từ console TAFJ bằng `tRun`**
@@ -168,7 +176,22 @@ tRun AML.CALLJ.MB.DEMO 100100 100724           quét khách hàng chỉ định 
 ```
 Hoặc dùng `run-mb-demo.bat [CUSTOMER.ID ...]` trong gói triển khai. Script này tự set `OFS_SOURCE=OFSONLINE` nếu chưa có.
 
-Khách hàng Model Bank sẽ ra PASS vì tên không nằm trong watchlist. Để tạo **hit trực tiếp** trước mặt khách:
+Kịch bản hit dựng sẵn: chạy `AML.CALLJ.MB.DEMO.HIT` (hoặc `tRun AML.CALLJ.MB.DEMO.HIT`). Kết quả mong đợi:
+```
+--- CUSTOMER 10000083 ------------------------------------------------------------
+Name        : Solomon David
+Nationality : US   Year of birth: 1971   Gender: M   Legal ID: 10000083
+CALLJ param : INPUTTER@GB0010001@CBS@10000083@1@Y@I@Y@Solomon David@US@1971@M@10000083@10000083@@@@@2#KH|KH|02|0|0|1|0
+=> OVERRIDE : Customer is high risk by AML (watchlist match) - OnboardNo 1001
+
+--- Approval status of AML hits ----------------------------------------------
+CUSTOMER 10000083 / OnboardNo 1001
+  Approval : P (PENDING - waiting for Compliance review)
+  Exposure : Risk H - Solomon David  Watchlist=Y  PEP/RCA=PEP
+```
+Sau đó duyệt trên mock (`curl ".../mock/approve?onboardNo=<OnboardNo vừa ra>&status=A"`) và chạy lại: mỗi lần scan mock tạo OnboardNo mới, nên muốn thấy **APPROVED** thì kiểm tra đúng OnboardNo cũ bằng `run-demo.bat run AML.CHECK.APPROVAL 10000083 <OnboardNo>` trên laptop.
+
+Với khách Model Bank khác (mặc định ra PASS), có thể tạo **hit trực tiếp** trước mặt khách:
 ```bat
 curl "http://localhost:8089/mock/watchlist?addId=100100"            REM theo CUSTOMER ID
 curl "http://localhost:8089/mock/watchlist?addName=ROBERT SMITH"   REM hoặc theo tên

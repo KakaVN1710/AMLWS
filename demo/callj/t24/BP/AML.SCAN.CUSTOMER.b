@@ -1,16 +1,16 @@
     SUBROUTINE AML.SCAN.CUSTOMER(Y.PARAM, Y.DECISION, Y.MESSAGE, Y.ONBOARD.NO)
 *-----------------------------------------------------------------------------
-* Goi AML RealTimeScan qua CALLJ va dua ra quyet dinh cho T24
+* Calls AML RealTimeScan through CALLJ and returns the T24 decision
 *
-* IN  : Y.PARAM       19 truong phan cach '@' (xem RealTimeScanRequest.fromDelimitedString)
+* IN  : Y.PARAM       19 fields separated by '@' (see RealTimeScanRequest.fromDelimitedString)
 *         1 OfficerId      2 Location     3 Source        4 ReferenceNo
 *         5 ServiceType    6 RedFlagType  7 ClientType    8 ClientExist
 *         9 ClientName    10 ClientCountry 11 ClientYOB   12 ClientGender
 *        13 ClientNo      14 ClientID    15 PassportNo    16 PassportNoSec
 *        17 PassportExpDate 18 PassportExpDateSec          19 RiskFactor
 * OUT : Y.DECISION    PASS | OVERRIDE | BLOCK | ERROR
-*       Y.MESSAGE     thong diep cho override / error
-*       Y.ONBOARD.NO  so ho so AML (khi co hit)
+*       Y.MESSAGE     override / error message
+*       Y.ONBOARD.NO  AML case number (when there is a hit)
 *-----------------------------------------------------------------------------
     Y.DECISION = ''
     Y.MESSAGE = ''
@@ -31,7 +31,7 @@
 
 *-----------------------------------------------------------------------------
 PARSE.RESULT:
-* RealTimeScanResponse.toDelimitedString() - phan cach '#'
+* RealTimeScanResponse.toDelimitedString() - fields separated by '#'
     Y.MATCH.STATUS = FIELD(Y.RESULT, '#', 1)
     Y.WHITELIST.STATUS = FIELD(Y.RESULT, '#', 2)
     Y.ONBOARD.NO = FIELD(Y.RESULT, '#', 3)
