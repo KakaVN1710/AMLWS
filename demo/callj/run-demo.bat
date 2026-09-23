@@ -4,6 +4,8 @@ REM   run-demo.bat build
 REM   run-demo.bat mock                      (de cua so nay mo)
 REM   run-demo.bat run AML.CALLJ.DEMO        (o cua so khac)
 REM   run-demo.bat run AML.CHECK.APPROVAL 100002 1001
+REM   run-demo.bat package [AML_URL]         goi trien khai len T24 Model Bank (build\t24-deploy)
+REM   set MOCK_OPTS=-Dmock.watchlist.ids=100100  (tuy chon cho mock, truoc khi chay "mock")
 setlocal EnableDelayedExpansion
 set DEMO_DIR=%~dp0
 set DEMO_DIR=%DEMO_DIR:~0,-1%
@@ -19,7 +21,8 @@ set MOCK_CP=%BUILD%\mock-classes;%LIBS%
 if "%1"=="build" goto build
 if "%1"=="mock" goto mock
 if "%1"=="run" goto run
-echo Usage: run-demo.bat build ^| mock ^| run ^<PROGRAM^> [args...]
+if "%1"=="package" goto package
+echo Usage: run-demo.bat build ^| mock ^| run ^<PROGRAM^> [args...] ^| package [AML_URL]
 exit /b 2
 
 :build
@@ -39,8 +42,32 @@ java -cp "%T24_CP%" demo.t24.InitTokenDb
 exit /b %ERRORLEVEL%
 
 :mock
-java -Dmock.port=%MOCK_PORT% -cp "%MOCK_CP%" demo.mock.MockAmlServer
+java -Dmock.port=%MOCK_PORT% %MOCK_OPTS% -cp "%MOCK_CP%" demo.mock.MockAmlServer
 exit /b %ERRORLEVEL%
+
+:package
+set AML_URL=%~2
+if "%AML_URL%"=="" set AML_URL=http://localhost:8089
+call :build
+if errorlevel 1 exit /b 1
+set OUT=%BUILD%\t24-deploy
+if exist "%OUT%" rmdir /s /q "%OUT%"
+mkdir "%OUT%\lib\thirdparty" "%OUT%\conf" "%OUT%\data" "%OUT%\BP" "%BUILD%\pkg-classes"
+(for /f "usebackq delims=" %%L in ("%DEMO_DIR%\config\aml.properties") do (
+    set "LINE=%%L"
+    if "!LINE:~0,10!"=="based.url=" (echo based.url=%AML_URL%) else (echo !LINE!)
+)) > "%OUT%\conf\aml.properties"
+xcopy /e /i /q /y "%BUILD%\aml-classes" "%BUILD%\pkg-classes" >nul
+copy /y "%OUT%\conf\aml.properties" "%BUILD%\pkg-classes\aml.properties" >nul
+jar cf "%OUT%\lib\aml-integration-full.jar" -C "%BUILD%\pkg-classes" . || exit /b 1
+copy /y "%BUILD%\lib\callj-training.jar" "%OUT%\lib\" >nul
+for %%J in (httpclient5-5.5 httpcore5-5.3.4 httpcore5-h2-5.3.4 jackson-core-2.15.0 jackson-databind-2.15.0 jackson-annotations-2.15.0 sqlite-jdbc-3.50.1.0) do copy /y "%ROOT%\libs\%%J.jar" "%OUT%\lib\thirdparty\" >nul
+copy /y "%TAFJ_HOME%\data\AMLScan.db" "%OUT%\data\" >nul
+REM TAFJ BP: ten file = ten routine (bo duoi .b)
+for %%F in ("%DEMO_DIR%\t24\BP\*.b") do copy /y "%%F" "%OUT%\BP\%%~nF" >nul
+echo ^>^> Goi trien khai: %OUT%   (based.url=%AML_URL%)
+dir /s /b "%OUT%"
+exit /b 0
 
 :run
 shift

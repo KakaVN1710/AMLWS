@@ -31,11 +31,16 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * Demo helpers:
  *   GET  /mock/approve?onboardNo=1001&status=A   (A=Approved, R=Rejected, P=Pending)
- *   GET  /mock/state                              (dump onboard cases)
+ *   GET  /mock/state                              (dump onboard cases + watchlist)
+ *   GET  /mock/watchlist?addName=ROBERT SMITH     (them ten vao watchlist khi dang demo)
+ *   GET  /mock/watchlist?addId=100100             (them CUSTOMER ID - so voi ClientNo/ReferenceNo)
+ *   GET  /mock/watchlist?removeName=...&removeId=...
+ *   Khoi tao san: -Dmock.watchlist="NAME 1,NAME 2" -Dmock.watchlist.ids=100100,100200
  *
  * Scan rules (evaluated on the request):
  *   - ClientID in WHITELIST                         -> WhitelistStatus=T, no hit
- *   - ClientName in WATCHLIST                       -> MatchStatus=T, RiskStatus=H, new OnboardNo
+ *   - ClientName in WATCHLIST or ClientNo/ReferenceNo in watchlist ids
+ *                                                   -> MatchStatus=T, RiskStatus=H, new OnboardNo
  *   - ClientCountry in SANCTION_COUNTRIES           -> SanctionCountryStatus=T, RiskStatus=H, new OnboardNo
  *   - ClientName in ADVERSE_MEDIA                   -> AdvMediaStatus=T, EDDStatus=T, RiskStatus=M, new OnboardNo
  *   - ClientName = "SERVER ERROR"                   -> HTTP 500
@@ -46,7 +51,8 @@ public class MockAmlServer {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    private static final Set<String> WATCHLIST = Set.of("NGUYEN VAN A", "OSAMA BIN LADEN", "JOHN DOE SANCTIONED");
+    private final Set<String> watchlist = ConcurrentHashMap.newKeySet();
+    private final Set<String> watchlistIds = ConcurrentHashMap.newKeySet();
     private static final Set<String> ADVERSE_MEDIA = Set.of("TRAN THI B");
     private static final Set<String> SANCTION_COUNTRIES = Set.of("KP", "IR", "SY", "CU");
     private static final Set<String> WHITELIST = Set.of("WL000001");
@@ -61,6 +67,13 @@ public class MockAmlServer {
     public MockAmlServer(String authId, String authPw) {
         this.authId = authId;
         this.authPw = authPw;
+        watchlist.addAll(List.of("NGUYEN VAN A", "OSAMA BIN LADEN", "JOHN DOE SANCTIONED"));
+        for (String n : System.getProperty("mock.watchlist", "").split(",")) {
+            if (!n.isBlank()) watchlist.add(n.trim().toUpperCase(Locale.ROOT));
+        }
+        for (String id : System.getProperty("mock.watchlist.ids", "").split(",")) {
+            if (!id.isBlank()) watchlistIds.add(id.trim());
+        }
     }
 
     public static void main(String[] args) throws IOException {
@@ -79,9 +92,21 @@ public class MockAmlServer {
         server.createContext("/AMLWS_EXPOSURE/api/RealTimeExposure", ex -> handle(ex, this::realTimeExposure));
         server.createContext("/mock/approve", ex -> handle(ex, this::mockApprove));
         server.createContext("/mock/state", ex -> handle(ex, this::mockState));
+        server.createContext("/mock/watchlist", ex -> handle(ex, this::mockWatchlist));
         server.start();
-        log("Mock AML server listening on http://localhost:" + port);
+        log("Mock AML server listening on http://localhost:" + port + " (all interfaces)");
+        try {
+            for (var ni : java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces())) {
+                if (!ni.isUp() || ni.isLoopback()) continue;
+                for (var addr : java.util.Collections.list(ni.getInetAddresses())) {
+                    if (addr instanceof java.net.Inet4Address) log("  reachable from T24 server as http://" + addr.getHostAddress() + ":" + port);
+                }
+            }
+        } catch (Exception ignored) {
+            // informational only
+        }
         log("Auth: AuthID=" + authId + " (password from -Dmock.auth.pw)");
+        log("Watchlist names=" + watchlist + " ids=" + watchlistIds);
     }
 
     // ------------------------------------------------------------------ handlers
@@ -122,6 +147,8 @@ public class MockAmlServer {
         String name = text(req, "ClientName").trim().toUpperCase(Locale.ROOT);
         String country = text(req, "ClientCountry").trim().toUpperCase(Locale.ROOT);
         String clientId = text(req, "ClientID").trim();
+        boolean idListed = watchlistIds.contains(text(req, "ClientNo").trim())
+                || watchlistIds.contains(text(req, "ReferenceNo").trim());
 
         if ("SERVER ERROR".equals(name)) {
             return new Reply(500, error("Simulated internal server error"));
@@ -141,7 +168,7 @@ public class MockAmlServer {
         }
 
         boolean hit = false;
-        if (WATCHLIST.contains(name)) {
+        if (watchlist.contains(name) || idListed) {
             hit = true;
             res.put("MatchStatus", "T");
             res.put("RiskStatus", "H");
@@ -228,7 +255,23 @@ public class MockAmlServer {
 
     private Reply mockState(HttpExchange ex, JsonNode ignored) {
         ObjectNode res = mapper.createObjectNode();
-        onboardCases.forEach(res::set);
+        ObjectNode cases = res.putObject("onboardCases");
+        onboardCases.forEach(cases::set);
+        res.set("watchlist", mapper.valueToTree(new TreeSet<>(watchlist)));
+        res.set("watchlistIds", mapper.valueToTree(new TreeSet<>(watchlistIds)));
+        return new Reply(200, res);
+    }
+
+    private Reply mockWatchlist(HttpExchange ex, JsonNode ignored) {
+        Map<String, String> q = query(ex);
+        if (q.containsKey("addName")) watchlist.add(q.get("addName").trim().toUpperCase(Locale.ROOT));
+        if (q.containsKey("removeName")) watchlist.remove(q.get("removeName").trim().toUpperCase(Locale.ROOT));
+        if (q.containsKey("addId")) watchlistIds.add(q.get("addId").trim());
+        if (q.containsKey("removeId")) watchlistIds.remove(q.get("removeId").trim());
+        log("  -> Watchlist names=" + watchlist + " ids=" + watchlistIds);
+        ObjectNode res = mapper.createObjectNode();
+        res.set("watchlist", mapper.valueToTree(new TreeSet<>(watchlist)));
+        res.set("watchlistIds", mapper.valueToTree(new TreeSet<>(watchlistIds)));
         return new Reply(200, res);
     }
 

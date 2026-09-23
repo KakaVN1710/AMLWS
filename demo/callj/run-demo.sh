@@ -4,6 +4,9 @@
 #   ./run-demo.sh build      chi build
 #   ./run-demo.sh mock       chay mock server (foreground)
 #   ./run-demo.sh run <PROGRAM> [args...]   chay 1 routine jBC trong t24/BP (mock phai dang chay)
+#   ./run-demo.sh package [AML_URL]          tao goi trien khai len T24 Model Bank that (build/t24-deploy)
+#                                            AML_URL mac dinh http://localhost:8089 (URL mock nhin tu may T24)
+#   MOCK_OPTS='-Dmock.watchlist.ids=100100' ./run-demo.sh mock   (tuy chon cho mock)
 set -euo pipefail
 
 DEMO_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -36,7 +39,30 @@ build() {
 }
 
 mock() {
-  exec java -Dmock.port="$MOCK_PORT" -cp "$MOCK_CP" demo.mock.MockAmlServer
+  exec java -Dmock.port="$MOCK_PORT" ${MOCK_OPTS:-} -cp "$MOCK_CP" demo.mock.MockAmlServer
+}
+
+# Goi trien khai cho TAFJ: jar (kem aml.properties tro toi mock), thu vien, token DB, routine
+package_t24() {
+  local url="${1:-http://localhost:8089}"
+  local out="$BUILD/t24-deploy"
+  build
+  rm -rf "$out" "$BUILD/pkg-classes"
+  mkdir -p "$out/lib/thirdparty" "$out/conf" "$out/data" "$out/BP" "$BUILD/pkg-classes"
+  sed "s#^based.url=.*#based.url=$url#" "$DEMO_DIR/config/aml.properties" > "$out/conf/aml.properties"
+  cp -r "$BUILD/aml-classes/." "$BUILD/pkg-classes/"
+  cp "$out/conf/aml.properties" "$BUILD/pkg-classes/aml.properties"
+  jar cf "$out/lib/aml-integration-full.jar" -C "$BUILD/pkg-classes" .
+  cp "$BUILD/lib/callj-training.jar" "$out/lib/"
+  for j in httpclient5-5.5 httpcore5-5.3.4 httpcore5-h2-5.3.4 jackson-core-2.15.0 jackson-databind-2.15.0 \
+           jackson-annotations-2.15.0 sqlite-jdbc-3.50.1.0; do
+    cp "$ROOT/libs/$j.jar" "$out/lib/thirdparty/"
+  done
+  cp "$TAFJ_HOME/data/AMLScan.db" "$out/data/"
+  cp "$DEMO_DIR"/t24/BP/*.b "$out/BP/"
+  for f in "$out"/BP/*.b; do mv "$f" "${f%.b}"; done      # TAFJ BP: ten file = ten routine
+  echo ">> Goi trien khai: $out   (based.url=$url)"
+  (cd "$out" && find . -type f | sort)
 }
 
 run() {
@@ -55,6 +81,7 @@ case "${1:-all}" in
   build) build ;;
   mock)  mock ;;
   run)   shift; run "$@" ;;
+  package) shift; package_t24 "$@" ;;
   all)
     build
     java -Dmock.port="$MOCK_PORT" -cp "$MOCK_CP" demo.mock.MockAmlServer > "$BUILD/mock-server.log" 2>&1 &
@@ -68,5 +95,5 @@ case "${1:-all}" in
     echo
     echo ">> Log mock server: $BUILD/mock-server.log"
     ;;
-  *) echo "Usage: $0 [all|build|mock|run <PROGRAM> [args...]]"; exit 2 ;;
+  *) echo "Usage: $0 [all|build|mock|run <PROGRAM> [args...]|package [AML_URL]]"; exit 2 ;;
 esac
